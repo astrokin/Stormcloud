@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		F48421211BDCBB8900C98567 /* Stormcloud.podspec in Resources */ = {isa = PBXBuildFile; fileRef = F48421201BDCBB8900C98567 /* Stormcloud.podspec */; };
+		F48421821BDCD62400C98567 /* StormcloudDefaultsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48421811BDCD62400C98567 /* StormcloudDefaultsManager.swift */; };
 		F4E2E9531BDCC8AF00A63FAF /* Stormcloud.h in Headers */ = {isa = PBXBuildFile; fileRef = F4E2E9521BDCC8AF00A63FAF /* Stormcloud.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F4E2E95A1BDCC8AF00A63FAF /* Stormcloud.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4E2E94F1BDCC8AF00A63FAF /* Stormcloud.framework */; };
 		F4E2E96B1BDCC8AF00A63FAF /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = F4E2E9691BDCC8AF00A63FAF /* LICENSE */; };
@@ -44,6 +45,7 @@
 
 /* Begin PBXFileReference section */
 		F48421201BDCBB8900C98567 /* Stormcloud.podspec */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Stormcloud.podspec; sourceTree = "<group>"; };
+		F48421811BDCD62400C98567 /* StormcloudDefaultsManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StormcloudDefaultsManager.swift; sourceTree = "<group>"; };
 		F4E2E94F1BDCC8AF00A63FAF /* Stormcloud.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Stormcloud.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F4E2E9521BDCC8AF00A63FAF /* Stormcloud.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Stormcloud.h; sourceTree = "<group>"; };
 		F4E2E9541BDCC8AF00A63FAF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -87,6 +89,28 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		F48421291BDCD33200C98567 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				F4E2E9751BDCC8AF00A63FAF /* 2014-10-18 16-47-44--iPhone--1E7C8A50-FDDC-4904-AD64-B192CF3DD157.json */,
+				F4E2E9761BDCC8AF00A63FAF /* 2020-10-19 16-47-44--iPhone--1E7C8A50-FDDC-4904-AD64-B192CF3DD157.json */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
+		F484212A1BDCD34300C98567 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				F4E2E97A1BDCC8AF00A63FAF /* StormcloudTestsCoreDataStack.swift */,
+				F4E2E97B1BDCC8AF00A63FAF /* Cloud.swift */,
+				F4E2E97C1BDCC8AF00A63FAF /* Cloud+CoreDataProperties.swift */,
+				F4E2E97D1BDCC8AF00A63FAF /* clouds.xcdatamodel */,
+				F4E2E97E1BDCC8AF00A63FAF /* Raindrop.swift */,
+				F4E2E97F1BDCC8AF00A63FAF /* Raindrop+CoreDataProperties.swift */,
+			);
+			name = Model;
+			sourceTree = "<group>";
+		};
 		F4E2E9451BDCC8AF00A63FAF = {
 			isa = PBXGroup;
 			children = (
@@ -117,6 +141,7 @@
 				F4E2E96F1BDCC8AF00A63FAF /* StormcloudMetadata.swift */,
 				F4E2E9541BDCC8AF00A63FAF /* Info.plist */,
 				F4E2E9731BDCC8AF00A63FAF /* Error.swift */,
+				F48421811BDCD62400C98567 /* StormcloudDefaultsManager.swift */,
 			);
 			path = Stormcloud;
 			sourceTree = "<group>";
@@ -124,17 +149,11 @@
 		F4E2E95D1BDCC8AF00A63FAF /* StormcloudTests */ = {
 			isa = PBXGroup;
 			children = (
-				F4E2E9751BDCC8AF00A63FAF /* 2014-10-18 16-47-44--iPhone--1E7C8A50-FDDC-4904-AD64-B192CF3DD157.json */,
-				F4E2E9761BDCC8AF00A63FAF /* 2020-10-19 16-47-44--iPhone--1E7C8A50-FDDC-4904-AD64-B192CF3DD157.json */,
-				F4E2E9771BDCC8AF00A63FAF /* StormcloudCoreDataTests.swift */,
-				F4E2E9781BDCC8AF00A63FAF /* StormcloudTests.swift */,
+				F484212A1BDCD34300C98567 /* Model */,
+				F48421291BDCD33200C98567 /* Resources */,
 				F4E2E9791BDCC8AF00A63FAF /* StormcloudTestsBaseClass.swift */,
-				F4E2E97A1BDCC8AF00A63FAF /* StormcloudTestsCoreDataStack.swift */,
-				F4E2E97B1BDCC8AF00A63FAF /* Cloud.swift */,
-				F4E2E97C1BDCC8AF00A63FAF /* Cloud+CoreDataProperties.swift */,
-				F4E2E97D1BDCC8AF00A63FAF /* clouds.xcdatamodel */,
-				F4E2E97E1BDCC8AF00A63FAF /* Raindrop.swift */,
-				F4E2E97F1BDCC8AF00A63FAF /* Raindrop+CoreDataProperties.swift */,
+				F4E2E9781BDCC8AF00A63FAF /* StormcloudTests.swift */,
+				F4E2E9771BDCC8AF00A63FAF /* StormcloudCoreDataTests.swift */,
 				F4E2E9601BDCC8AF00A63FAF /* Info.plist */,
 			);
 			path = StormcloudTests;
@@ -255,6 +274,7 @@
 				F4E2E9741BDCC8AF00A63FAF /* Error.swift in Sources */,
 				F4E2E9701BDCC8AF00A63FAF /* StormcloudDocument.swift in Sources */,
 				F4E2E9711BDCC8AF00A63FAF /* Stormcloud.swift in Sources */,
+				F48421821BDCD62400C98567 /* StormcloudDefaultsManager.swift in Sources */,
 				F4E2E9721BDCC8AF00A63FAF /* StormcloudMetadata.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

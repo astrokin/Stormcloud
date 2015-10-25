@@ -7,6 +7,7 @@
 //
 
 import CoreData
+import Stormcloud
 
 public enum CoreDataStackEnvironmentVariables : String, StormcloudEnvironmentVariable {
     case UseMemoryStore = "StormcloudUseMemoryStore"

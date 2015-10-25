@@ -10,11 +10,11 @@ import UIKit
 import CoreData
 
 // A simple protocol with an implementation in an extension that will help us manage the environment
-protocol StormcloudEnvironmentVariable  {
+public protocol StormcloudEnvironmentVariable  {
     func stringValue() -> String
 }
 
-extension StormcloudEnvironmentVariable {
+public extension StormcloudEnvironmentVariable {
     func isEnabled() -> Bool {
         let env = NSProcessInfo.processInfo().environment
         if let _ = env[self.stringValue()]  {
@@ -131,11 +131,15 @@ public class Stormcloud: NSObject {
     
     - returns: true if iCloud was enabled, false otherwise
     */
-    public func enableiCloudShouldMoveLocalDocumentsToiCloud(move : Bool, completion : ((moveSuccessful : StormcloudError?) -> Void)? ) -> Bool {
+    public func enableiCloudShouldMoveLocalDocumentsToiCloud(move : Bool, completion : ((error : StormcloudError?) -> Void)? ) -> Bool {
         let currentiCloudToken = NSFileManager.defaultManager().ubiquityIdentityToken
         
         // If we don't have a token, then we can't enable iCloud
         guard let token = currentiCloudToken  else {
+            if let hasCompletion = completion {
+                hasCompletion(error: StormcloudError.iCloudUnavailable)
+            }
+            
             disableiCloudShouldMoveiCloudDocumentsToLocal(false, completion: nil)
             return false
             

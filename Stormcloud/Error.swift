@@ -17,6 +17,7 @@ import Foundation
  - **CouldntSaveNewDocument**:          The document manager could not save the document
  - **CouldntMoveDocumentToiCloud**:     The backup document was created but could not be moved to iCloud
  - **CouldntDelete**:     The backup document was created but could not be moved to iCloud 
+ - **iCloudUnavailable**:     The backup document was created but could not be moved to iCloud
  */
 public enum StormcloudError : Int, ErrorType {
     case InvalidJSON
@@ -26,6 +27,7 @@ public enum StormcloudError : Int, ErrorType {
     case CouldntSaveNewDocument
     case CouldntMoveDocumentToiCloud
     case CouldntDelete
+    case iCloudUnavailable
     
     func domain() -> String {
         return "com.voyagetravelapps.Stormcloud"
