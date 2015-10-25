@@ -11,7 +11,7 @@ s.social_media_url = 'https://twitter.com/SimonFairbairn'
 s.ios.deployment_target = '8.0'
 s.requires_arc = true
 
-s.source_files = 'VTAUtilities/'
+s.source_files = 'Stormcloud/'
 
 s.frameworks = 'CoreData'
 end
