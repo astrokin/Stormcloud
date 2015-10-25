@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F48421211BDCBB8900C98567 /* Stormcloud.podspec in Resources */ = {isa = PBXBuildFile; fileRef = F48421201BDCBB8900C98567 /* Stormcloud.podspec */; };
 		F4E2E9531BDCC8AF00A63FAF /* Stormcloud.h in Headers */ = {isa = PBXBuildFile; fileRef = F4E2E9521BDCC8AF00A63FAF /* Stormcloud.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F4E2E95A1BDCC8AF00A63FAF /* Stormcloud.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4E2E94F1BDCC8AF00A63FAF /* Stormcloud.framework */; };
 		F4E2E96B1BDCC8AF00A63FAF /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = F4E2E9691BDCC8AF00A63FAF /* LICENSE */; };
@@ -42,6 +43,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		F48421201BDCBB8900C98567 /* Stormcloud.podspec */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Stormcloud.podspec; sourceTree = "<group>"; };
 		F4E2E94F1BDCC8AF00A63FAF /* Stormcloud.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Stormcloud.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F4E2E9521BDCC8AF00A63FAF /* Stormcloud.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Stormcloud.h; sourceTree = "<group>"; };
 		F4E2E9541BDCC8AF00A63FAF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -88,6 +90,7 @@
 		F4E2E9451BDCC8AF00A63FAF = {
 			isa = PBXGroup;
 			children = (
+				F48421201BDCBB8900C98567 /* Stormcloud.podspec */,
 				F4E2E9691BDCC8AF00A63FAF /* LICENSE */,
 				F4E2E96A1BDCC8AF00A63FAF /* README.md */,
 				F4E2E9511BDCC8AF00A63FAF /* Stormcloud */,
@@ -228,6 +231,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F48421211BDCBB8900C98567 /* Stormcloud.podspec in Resources */,
 				F4E2E96B1BDCC8AF00A63FAF /* LICENSE in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
