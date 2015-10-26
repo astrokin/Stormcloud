@@ -68,9 +68,30 @@ class CloudView: UIView {
         let bottomRectPath = UIBezierPath(rect: bottomRect)
         bottomRectPath.fill()
         
-        let centerCircle = CGRectMake(thirdX / 2, 0, thirdX * 2, thirdX * 2)
+        
+        // When quarter
+        
+        let circleSize = thirdX * 2
+        
+        let centerCircle = CGRectMake(centerX - (circleSize / 2), centerY - (circleSize / 2), circleSize, circleSize)
         let centerCirclePath = UIBezierPath(ovalInRect: centerCircle)
         centerCirclePath.fill()
+        
+//        
+//        let miniCircleSize = circleSize / 3
+//        let xPos = centerX - (( circleSize / 2) + (  miniCircleSize / 2 ) )
+//        let yPos = centerY - miniCircleSize / 2
+//        
+//        let miniCircleRect = CGRectMake(xPos, yPos, miniCircleSize, miniCircleSize)
+//        let miniCirclePath = UIBezierPath(ovalInRect: miniCircleRect)
+//        miniCirclePath.fill()
+//        
+//        let newXpos = centerX + (( circleSize / 2) - (  miniCircleSize / 2 ) )
+//        let secondMiniCircleRect = CGRectMake(newXpos, yPos, miniCircleSize, miniCircleSize)
+//        let secondMiniCirclePath = UIBezierPath(ovalInRect: secondMiniCircleRect)
+//        secondMiniCirclePath.fill()
+        
+        
         
     }
 

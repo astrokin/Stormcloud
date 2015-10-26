@@ -61,11 +61,18 @@ class DetailViewController: UIViewController {
         if let context = self.stack?.managedObjectContext, doc = self.document {
             self.activityIndicator.startAnimating()
             self.view.userInteractionEnabled = false
-            self.backupManager?.restoreCoreDataBackup(withDocument: doc, toContext: context , completion: { (success) -> () in
+            self.backupManager?.restoreCoreDataBackup(withDocument: doc, toContext: context , completion: { (error) -> () in
                 self.activityIndicator.stopAnimating()
                 self.view.userInteractionEnabled = true
             
-                let avc = UIAlertController(title: "Completed!", message: (success) ? "Successfully" : "With errors", preferredStyle: .Alert)
+                let message : String
+                if let _ = error {
+                    message = "With Errors"
+                } else {
+                    message = "Successfully"
+                }
+                
+                let avc = UIAlertController(title: "Completed!", message: message, preferredStyle: .Alert)
                 avc.addAction(UIAlertAction(title: "OK", style: .Cancel, handler: nil))
                 self.presentViewController(avc, animated: true, completion: nil)
             

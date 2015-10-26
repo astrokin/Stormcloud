@@ -58,10 +58,6 @@ enum StormcloudPrefKey : String {
     
 }
 
-
-
-
-
 /**
  *  Informs the delegate of changes made to the metadata list.
  */
@@ -70,7 +66,6 @@ public protocol StormcloudDelegate {
     func metadataListDidChange(manager : Stormcloud)
     func metadataListDidAddItemsAtIndexes( addedItems : NSIndexSet?, andDeletedItemsAtIndexes deletedItems: NSIndexSet?)
 }
-
 
 public class Stormcloud: NSObject {
     
@@ -107,6 +102,7 @@ public class Stormcloud: NSObject {
     var moveDocsToiCloud : Bool = false
     var moveDocsToiCloudCompletion : ((error : StormcloudError?) -> Void)?
 
+    var operationInProgress : Bool = false
     
     public override init() {
         super.init()
@@ -280,6 +276,13 @@ extension Stormcloud {
      */
     public func backupObjectsToJSON( objects : AnyObject, completion : (success : Bool, error : StormcloudError?, metadata : StormcloudMetadata?) -> () ) {
         
+        if self.operationInProgress {
+            completion(success: false, error: .BackupInProgress, metadata: nil)
+            return
+        }
+        self.operationInProgress = true
+        
+        
         if let baseURL = self.documentsDirectory() {
             let metadata = StormcloudMetadata()
             let finalURL = baseURL.URLByAppendingPathComponent(metadata.filename)
@@ -307,7 +310,10 @@ extension Stormcloud {
                     if StormcloudEnvironment.VerboseLogging.isEnabled() {
                         print("\(__FUNCTION__): Error saving new document")
                     }
-                    completion(success: totalSuccess, error : StormcloudError.CouldntSaveNewDocument, metadata: nil)
+                    dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                        self.operationInProgress = false
+                        completion(success: totalSuccess, error : StormcloudError.CouldntSaveNewDocument, metadata: nil)
+                    })
                     return
                     
                 }
@@ -315,23 +321,20 @@ extension Stormcloud {
                 if !self.isUsingiCloud {
                     dispatch_async(dispatch_get_main_queue(), { () -> Void in
                         self.internalMetadataList.append(metadata)
-                        
                         self.prepareDocumentList()
-                        
+                        self.operationInProgress = false
                         completion(success: totalSuccess, error: nil, metadata: (totalSuccess) ? metadata : metadata)
                     })
                 } else {
-                    
                     self.moveItemsToiCloud([metadata.filename], completion: { (success) -> Void in
-                        
                         dispatch_async(dispatch_get_main_queue(), { () -> Void in
                             
+                            self.operationInProgress = false
                             if totalSuccess {
                                 completion(success: totalSuccess, error:  nil, metadata: metadata)
                             } else {
                                 completion(success: totalSuccess, error: StormcloudError.CouldntMoveDocumentToiCloud, metadata: metadata)
                             }
-                            
                         })
                     })
                 }
@@ -353,7 +356,11 @@ extension Stormcloud {
         } catch {
             print("Error saving context")
         }
-        
+        if self.operationInProgress {
+            completion(success: false, error: .BackupInProgress, metadata: nil)
+            return
+        }
+        self.operationInProgress = true
         
         let privateContext = NSManagedObjectContext(concurrencyType: .PrivateQueueConcurrencyType)
         privateContext.parentContext = context
@@ -416,10 +423,12 @@ extension Stormcloud {
                     }
                     
                     dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                        self.operationInProgress = false
                         completion(success: false, error: .InvalidJSON, metadata: nil)
                     })
                 } else {
                     dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                        self.operationInProgress = false
                         self.backupObjectsToJSON(dictionary, completion: completion)
                     })
                 }
@@ -446,18 +455,19 @@ extension Stormcloud {
         }
     }
     
-    public func restoreCoreDataBackup(withDocument document : BackupDocument, toContext context : NSManagedObjectContext,  completion : (success : Bool) -> () ) {
+    public func restoreCoreDataBackup(withDocument document : BackupDocument, toContext context : NSManagedObjectContext,  completion : (error : StormcloudError?) -> () ) {
         if let data = document.objectsToBackup as? [String : AnyObject] {
             self.insertObjectsWithContext(context, data: data) { (success)  -> Void in
-                completion(success: success)
+                let error : StormcloudError?  = (success) ? nil : StormcloudError.CouldntRestoreJSON
+                completion(error: error)
             }
         } else {
-            completion(success: false)
+            completion(error: .CouldntRestoreJSON)
         }
     }
     
     
-    public func restoreCoreDataBackup(withMetadata metadata : StormcloudMetadata, toContext context : NSManagedObjectContext,  completion : (success : Bool) -> () ) {
+    public func restoreCoreDataBackup(withMetadata metadata : StormcloudMetadata, toContext context : NSManagedObjectContext,  completion : (error : StormcloudError?) -> () ) {
         
         do {
             try context.save()
@@ -465,12 +475,19 @@ extension Stormcloud {
             // TODO : Handle errors better
             print("Error saving context")
         }
+        
+        if self.operationInProgress {
+            completion(error: .BackupInProgress)
+            return
+        }
+        self.operationInProgress = true
+        
         if let url = self.urlForItem(metadata) {
             let document = BackupDocument(fileURL : url)
             document.openWithCompletionHandler({ (success) -> Void in
                 
                 if !success {
-                    completion(success: success)
+                    completion(error: .CouldntOpenDocument)
                     return
                 }
                 

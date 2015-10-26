@@ -15,7 +15,7 @@ public protocol StormcloudMetadataDelegate {
 
 public class StormcloudMetadata: NSObject {
     
-    static let dateFormatter = NSDateFormatter()
+    public static let dateFormatter = NSDateFormatter()
     
     /// A delegate that can be notified when the state of the backup document changes
     public var delegate : StormcloudMetadataDelegate?
@@ -98,9 +98,19 @@ public class StormcloudMetadata: NSObject {
     var internalPercentDownloaded : Double = 0
     
     public override init() {
+        let dateComponents = NSCalendar.currentCalendar().components([.Year, .Month, .Day, .Hour, .Minute, .Second], fromDate: NSDate())
+        dateComponents.calendar = NSCalendar.currentCalendar()
+        dateComponents.timeZone = NSTimeZone(abbreviation: "UTC")
+        
         StormcloudMetadata.dateFormatter.dateFormat = "yyyy-MM-dd HH-mm-ss"
+
         self.device = UIDevice.currentDevice().model
-        self.date = NSDate()
+        if let date = dateComponents.date {
+            self.date = date
+        } else {
+            self.date = NSDate()
+        }
+        
         self.deviceUUID = StormcloudMetadata.getDeviceUUID()
         let stringDate = StormcloudMetadata.dateFormatter.stringFromDate(self.date)
         self.filename = "\(stringDate)--\(self.device)--\(self.deviceUUID).json"
@@ -118,7 +128,7 @@ public class StormcloudMetadata: NSObject {
 
     public init( path : String ) {
         StormcloudMetadata.dateFormatter.dateFormat = "yyyy-MM-dd HH-mm-ss"
-        
+
         var filename = ""
         
         var date  = NSDate()

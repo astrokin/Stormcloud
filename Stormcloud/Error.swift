@@ -28,6 +28,10 @@ public enum StormcloudError : Int, ErrorType {
     case CouldntMoveDocumentToiCloud
     case CouldntDelete
     case iCloudUnavailable
+    case BackupInProgress
+    case RestoreInProgress
+    case CouldntOpenDocument
+    case CouldntRestoreJSON
     
     func domain() -> String {
         return "com.voyagetravelapps.Stormcloud"

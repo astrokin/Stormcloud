@@ -11,6 +11,7 @@ import Stormcloud
 
 class DocumentsTableViewController: UITableViewController {
 
+    
     let dateFormatter = NSDateFormatter()
     var documentsManager : Stormcloud!
     
@@ -67,7 +68,13 @@ class DocumentsTableViewController: UITableViewController {
     
     
     func configureTableViewCell( tvc : UITableViewCell, withMetadata data: StormcloudMetadata ) {
-        var text = data.date.description
+        
+
+        dateFormatter.dateStyle = .ShortStyle
+        dateFormatter.timeStyle = .ShortStyle
+        dateFormatter.timeZone = NSTimeZone(abbreviation: "UTC")
+        var text = dateFormatter.stringFromDate(data.date)
+        
         if self.documentsManager.isUsingiCloud {
             
             if data.isDownloading {
@@ -131,6 +138,7 @@ extension DocumentsTableViewController {
 
 }
 
+// MARK: - StormcloudDelegate
 
 extension DocumentsTableViewController : StormcloudDelegate {
     

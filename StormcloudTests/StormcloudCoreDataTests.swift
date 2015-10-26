@@ -240,7 +240,7 @@ class StormcloudCoreDataTests: StormcloudTestsBaseClass {
         let expectation = expectationWithDescription("Restore expectation")
         manager.restoreCoreDataBackup(withMetadata: self.manager.metadataList[0], toContext: stack.managedObjectContext!) { (success) -> () in
             
-            XCTAssert(success)
+            XCTAssertNil(success)
             XCTAssertEqual(NSThread.currentThread(), NSThread.mainThread())
 
 

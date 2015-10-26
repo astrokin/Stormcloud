@@ -120,6 +120,37 @@ class StormcloudTests: StormcloudTestsBaseClass {
         
     }
     
+    func testThatFilenameDatesAreConvertedToLocalTime() {
+        
+        let stormcloud = Stormcloud()
+        let dateComponents = NSCalendar.currentCalendar().components([.Year, .Month, .Day, .Hour, .Minute], fromDate: NSDate())
+        dateComponents.timeZone = NSTimeZone(abbreviation: "UTC")
+        dateComponents.calendar = NSCalendar.currentCalendar()
+        guard let date = dateComponents.date else {
+            XCTFail()
+            return
+        }
+        
+        let expectation = expectationWithDescription("Adding new item")
+        stormcloud.backupObjectsToJSON(["Test" : "Test"]) { (success, error,  metadata) -> () in
+            
+            XCTAssert(success)
+            
+            if let hasMetadata = metadata {
+                let dateComponents = NSCalendar.currentCalendar().components([.Year, .Month, .Day, .Hour, .Minute], fromDate: hasMetadata.date)
+                dateComponents.calendar = NSCalendar.currentCalendar()
+                if let metaDatadate = dateComponents.date {
+                    XCTAssertEqual(date, metaDatadate)
+                }
+            }
+            
+            expectation.fulfill()
+        }
+        waitForExpectationsWithTimeout(3.0, handler: nil)
+        
+        
+        
+    }
     
     
     

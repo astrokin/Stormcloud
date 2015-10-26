@@ -142,8 +142,6 @@ extension CloudDetailViewController {
             if let item = self.dynamicItems[index] {
                 self.gravityBehaviour.removeItem(item)
             }
-            
-            
             view.removeFromSuperview()
         }
         
@@ -153,16 +151,18 @@ extension CloudDetailViewController {
         switch type {
         case .Drizzle:
             size = CGRectMake(0, 0, 5, 9)
+            self.gravityBehaviour.magnitude = 1.0
         case .Light:
             size = CGRectMake(0, 0, 10, 18)
+            self.gravityBehaviour.magnitude = 2.0
         case .Heavy :
             size = CGRectMake(0, 0, 15, 27)
+                        self.gravityBehaviour.magnitude = 3.0
         }
         
         let minLeading = CGFloat(CGRectGetMinX(self.cloudImage.frame))
         let maxLeading = CGFloat(CGRectGetMaxX(self.cloudImage.frame)) - size.width
         let distance = maxLeading - minLeading
-        
         
         func getRandomPosition() -> CGFloat {
             let randomPos = CGFloat(Float(arc4random()) / Float(UINT32_MAX))
@@ -202,6 +202,9 @@ extension CloudDetailViewController {
             
             self.performSelector(Selector("addDynamicItem:"), withObject: dynamicItem, afterDelay: NSTimeInterval(maxDelay * NSTimeInterval(randomPos)) + NSTimeInterval(i) * 0.2)
             
+
+            
+            
             self.gravityBehaviour.action = {
                 
                 let subviews = self.view.subviews.filter() { $0.tag >= 100 }
@@ -239,12 +242,15 @@ extension CloudDetailViewController {
             return
         }
         
-        
-        
-        
         do {
             let raindrop = try Raindrop.insertRaindropWithType(RaindropType.allValues[self.raindropType.selectedSegmentIndex], withCloud: cloud, inContext: cloud.managedObjectContext!)
             raindrop.colour = self.colorFromSliders()
+            
+            if let count = Int(raindropCount.text!) {
+                self.raindropCount.text = "\(count + 1)"
+            }
+            
+
         } catch {
             print("Couldn't create raindrop")
         }
