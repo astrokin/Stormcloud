@@ -194,7 +194,6 @@ public class Stormcloud: NSObject {
                     do {
                         try NSFileManager.defaultManager().setUbiquitous(true, itemAtURL: finalURL, destinationURL: finaliCloudURL)
                     } catch let error as NSError {
-                        // TODO: Better error handling with enum in closure
                         success = false
                         hasError = error
                     }
@@ -205,7 +204,8 @@ public class Stormcloud: NSObject {
                 })
             })
         } else {
-            let error = NSError(domain: "Stormcloud", code: 10, userInfo: [NSLocalizedDescriptionKey : "Couldn't get valid iCloud and local documents directories"])
+            let scError = StormcloudError.CouldntMoveDocumentToiCloud
+            let error = scError.asNSError()
             completion?(success: false, error : error)
         }
     }
@@ -222,10 +222,9 @@ public class Stormcloud: NSObject {
                     let finalURL = docsDir.URLByAppendingPathComponent(element)
                     let finaliCloudURL = iCloudDir.URLByAppendingPathComponent(element)
                     do {
-                        //                        print("Moving files from iCloud: \(finaliCloudURL) to local URL: \(finalURL)")
+                        self.stormcloudLog("Moving files from iCloud: \(finaliCloudURL) to local URL: \(finalURL)")
                         try NSFileManager.defaultManager().setUbiquitous(false, itemAtURL: finaliCloudURL, destinationURL: finalURL)
                     } catch {
-                        // TODO: Better error handling with enum in closure
                         success = false
                     }
                 }
@@ -280,10 +279,10 @@ extension Stormcloud {
      - parameter objects:    A JSON object
      - parameter completion: A completion block that returns the new metadata if the backup was successful and a new document was created
      */
-    public func backupObjectsToJSON( objects : AnyObject, completion : (success : Bool, error : StormcloudError?, metadata : StormcloudMetadata?) -> () ) {
+    public func backupObjectsToJSON( objects : AnyObject, completion : (error : StormcloudError?, metadata : StormcloudMetadata?) -> () ) {
         
         if self.operationInProgress {
-            completion(success: false, error: .BackupInProgress, metadata: nil)
+            completion(error: .BackupInProgress, metadata: nil)
             return
         }
         self.operationInProgress = true
@@ -300,7 +299,7 @@ extension Stormcloud {
                 self.deleteItem(metadata, completion: { (index, error) -> () in
                     if let _ = error {
                         success = false
-                        backupCompletion(success: false, error: .CouldntDelete, metadata: metadata)
+                        backupCompletion(error: .CouldntDelete, metadata: metadata)
                     }
                 })
                 if !success {
@@ -331,19 +330,19 @@ extension Stormcloud {
             })
             
             if exists.count > 0 {
-                completion(success: false, error: .BackupFileExists, metadata: nil)
+                completion(error: .BackupFileExists, metadata: nil)
                 return
             }
             document.saveToURL(finalURL, forSaveOperation: .ForCreating, completionHandler: { (success) -> Void in
                 let totalSuccess = success
                 
                 if ( !totalSuccess ) {
-                    if StormcloudEnvironment.VerboseLogging.isEnabled() {
-                        print("\(__FUNCTION__): Error saving new document")
-                    }
+                    
+                    self.stormcloudLog("\(__FUNCTION__): Error saving new document")
+                    
                     dispatch_async(dispatch_get_main_queue(), { () -> Void in
                         self.operationInProgress = false
-                        completion(success: totalSuccess, error : StormcloudError.CouldntSaveNewDocument, metadata: nil)
+                        completion(error : StormcloudError.CouldntSaveNewDocument, metadata: nil)
                     })
                     return
                     
@@ -354,7 +353,7 @@ extension Stormcloud {
                         self.internalMetadataList.append(metadata)
                         self.prepareDocumentList()
                         self.operationInProgress = false
-                        completion(success: totalSuccess, error: nil, metadata: (totalSuccess) ? metadata : metadata)
+                        completion(error: nil, metadata: (totalSuccess) ? metadata : metadata)
                     })
                 } else {
                     self.moveItemsToiCloud([metadata.filename], completion: { (success) -> Void in
@@ -362,9 +361,9 @@ extension Stormcloud {
                             
                             self.operationInProgress = false
                             if totalSuccess {
-                                completion(success: totalSuccess, error:  nil, metadata: metadata)
+                                completion(error:  nil, metadata: metadata)
                             } else {
-                                completion(success: totalSuccess, error: StormcloudError.CouldntMoveDocumentToiCloud, metadata: metadata)
+                                completion(error: StormcloudError.CouldntMoveDocumentToiCloud, metadata: metadata)
                             }
                         })
                     })
@@ -373,22 +372,51 @@ extension Stormcloud {
         }
     }
     
-    func restoreBackup(withMetadata metadata : StormcloudMetadata, completion : (success : Bool, restoredObjects : AnyObject? ) -> () ) {
+    /**
+     Restores a JSON object from the given Stormcloud Metadata object
+     
+     - parameter metadata:        The Stormcloud metadata object that represents the document
+     - parameter completion:      A completion handler to run when the operation is completed
+     */
+    public func restoreBackup(withMetadata metadata : StormcloudMetadata, completion : (error: StormcloudError?, restoredObjects : AnyObject? ) -> () ) {
+
+        if self.operationInProgress {
+            completion(error: .BackupInProgress, restoredObjects:  nil)
+            return
+        }
+        self.operationInProgress = true
         
-        
-        
+        if let url = self.urlForItem(metadata) {
+            let document = BackupDocument(fileURL : url)
+            document.openWithCompletionHandler({ (success) -> Void in
+                
+                if !success {
+                    self.operationInProgress = false
+                    completion(error: .CouldntOpenDocument, restoredObjects:  nil)
+                    return
+                }
+                
+                dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                    self.operationInProgress = false
+                    completion(error: nil, restoredObjects: document.objectsToBackup)
+                })
+            })
+        } else {
+            self.operationInProgress = false
+            completion(error: .InvalidURL, restoredObjects:  nil)
+        }
     }
     
     
-    public func backupCoreDataEntities( inContext context : NSManagedObjectContext, completion : ( success : Bool, error : StormcloudError?, metadata : StormcloudMetadata?) -> () ) {
+    public func backupCoreDataEntities( inContext context : NSManagedObjectContext, completion : ( error : StormcloudError?, metadata : StormcloudMetadata?) -> () ) {
         
         do {
             try context.save()
         } catch {
-            print("Error saving context")
+            stormcloudLog("Error saving context")
         }
         if self.operationInProgress {
-            completion(success: false, error: .BackupInProgress, metadata: nil)
+            completion(error: .BackupInProgress, metadata: nil)
             return
         }
         self.operationInProgress = true
@@ -447,15 +475,12 @@ extension Stormcloud {
                     }
                 }
                 if !NSJSONSerialization.isValidJSONObject(dictionary) {
-                    // TODO: Handle errors elegantly and remove abort
-                    
-                    if StormcloudEnvironment.VerboseLogging.isEnabled() {
-                        print("\(__FUNCTION__) Error: Dictionary not valid: \(dictionary)")
-                    }
+
+                   self.stormcloudLog("\(__FUNCTION__) Error: Dictionary not valid: \(dictionary)")
                     
                     dispatch_async(dispatch_get_main_queue(), { () -> Void in
                         self.operationInProgress = false
-                        completion(success: false, error: .InvalidJSON, metadata: nil)
+                        completion(error: .InvalidJSON, metadata: nil)
                     })
                 } else {
                     dispatch_async(dispatch_get_main_queue(), { () -> Void in
@@ -467,14 +492,14 @@ extension Stormcloud {
         }
     }
     
-    public func mergeCoreDataBackup(withMetadata metadata : StormcloudMetadata, toContext context : NSManagedObjectContext, completion : (success : Bool ) -> () ) {
+    func mergeCoreDataBackup(withMetadata metadata : StormcloudMetadata, toContext context : NSManagedObjectContext, completion : (success : Bool ) -> () ) {
         
         
         do {
             try context.save()
         } catch {
             // TODO : Handle errors better
-            print("Error saving context")
+            stormcloudLog("Error saving context")
         }
         
         
@@ -486,25 +511,42 @@ extension Stormcloud {
         }
     }
     
+    
+    /**
+     Restores a backup to Core Data from a UIManagedDocument
+     
+     - parameter document:   The backup document to restore
+     - parameter context:    The context to restore the objects to
+     - parameter completion: A completion handler
+     */
     public func restoreCoreDataBackup(withDocument document : BackupDocument, toContext context : NSManagedObjectContext,  completion : (error : StormcloudError?) -> () ) {
         if let data = document.objectsToBackup as? [String : AnyObject] {
             self.insertObjectsWithContext(context, data: data) { (success)  -> Void in
+                self.operationInProgress = false
                 let error : StormcloudError?  = (success) ? nil : StormcloudError.CouldntRestoreJSON
                 completion(error: error)
             }
         } else {
+            self.operationInProgress = false
             completion(error: .CouldntRestoreJSON)
         }
     }
     
-    
+    /**
+     Restores a backup to Core Data from a StormcloudMetadata object
+     
+     - parameter metadata:  The metadata that represents the document
+     - parameter context:    The context to restore the objects to
+     - parameter completion: A completion handler
+     */
+
     public func restoreCoreDataBackup(withMetadata metadata : StormcloudMetadata, toContext context : NSManagedObjectContext,  completion : (error : StormcloudError?) -> () ) {
         
         do {
             try context.save()
         } catch {
             // TODO : Handle errors better
-            print("Error saving context")
+            stormcloudLog("Error saving context")
         }
         
         if self.operationInProgress {
@@ -518,6 +560,7 @@ extension Stormcloud {
             document.openWithCompletionHandler({ (success) -> Void in
                 
                 if !success {
+                    self.operationInProgress = true
                     completion(error: .CouldntOpenDocument)
                     return
                 }
@@ -527,6 +570,9 @@ extension Stormcloud {
                     self.restoreCoreDataBackup(withDocument: document, toContext: context, completion: completion)
                 })
             })
+        } else {
+            self.operationInProgress = false
+            completion(error: .InvalidURL)
         }
     }
     
@@ -584,7 +630,7 @@ extension Stormcloud {
                             
                         } else {
                             testObject = object
-                            print("Test object has id: \(testObject!.objectID.URIRepresentation().absoluteString)")
+                            self.stormcloudLog("Test object has id: \(testObject!.objectID.URIRepresentation().absoluteString)")
                         }
                         
                         
@@ -608,11 +654,11 @@ extension Stormcloud {
                     try privateContext.save()
                 } catch {
                     // TODO : Better error handling
-                    print("Error saving during restore")
+                    self.stormcloudLog("Error saving during restore")
                 }
                 
                 // TESTING
-                print("After save: \(testObject!.objectID.URIRepresentation().absoluteString)")
+                self.stormcloudLog("After save: \(testObject!.objectID.URIRepresentation().absoluteString)")
                 
                 for object in allObjects {
                     if let relationshipData = data[object.objectID.URIRepresentation().absoluteString] as? [String : AnyObject] {
@@ -633,8 +679,6 @@ extension Stormcloud {
                 }
                 
                 dispatch_async(dispatch_get_main_queue()) { () -> Void in
-
-                    
                     completion(success: success)
                 }
                 
@@ -654,7 +698,7 @@ extension Stormcloud {
                     if !relationship.toMany {
                         let name = relatedObject.valueForKey("name")
                         let relatedName = onObject.valueForKey("type")
-                        print("Added \(name) to \(relatedName)")
+                        stormcloudLog("Added \(name) to \(relatedName)")
                         
                         onObject.setValue(relatedObject, forKey: relationship.name)
                         
@@ -672,7 +716,7 @@ extension Stormcloud {
                     let set = NSSet(array: setObjects)
                     onObject.setValue(set, forKey: relationship.name)
                     let name = onObject.valueForKey("name")
-                    print("Added \(setObjects.count) objects to \(name)")
+                    stormcloudLog("Added \(setObjects.count) objects to \(name)")
                 }
 
             }
@@ -721,7 +765,7 @@ extension Stormcloud {
             if let val = data as? NSNumber {
                 object.setValue(val, forKey: attribute.name)
             } else {
-                print("Setting Number : \(data) not Number")
+                stormcloudLog("Setting Number : \(data) not Number")
             }
             
         case .DecimalAttributeType:
@@ -729,20 +773,20 @@ extension Stormcloud {
                 let decimal = NSDecimalNumber(string: val)
                 object.setValue(decimal, forKey: attribute.name)
             } else {
-                print("Setting Decimal : \(data) not String")
+                stormcloudLog("Setting Decimal : \(data) not String")
             }
             
         case .StringAttributeType:
             if let val = data as? String {
                 object.setValue(val, forKey: attribute.name)
             } else {
-                print("Setting String : \(data) not String")
+                stormcloudLog("Setting String : \(data) not String")
             }
         case .BooleanAttributeType:
             if let val = data as? NSNumber {
                 object.setValue(val.boolValue, forKey: attribute.name)
             } else {
-                print("Setting Bool : \(data) not Number")
+                stormcloudLog("Setting Bool : \(data) not Number")
             }
         case .DateAttributeType:
             if let val = data as? String, date = self.formatter.dateFromString(val) {
@@ -757,7 +801,7 @@ extension Stormcloud {
                 }
                 unarchiver.finishDecoding()
             } else {
-                print("Transformable/Binary type : \(data) not String")
+                stormcloudLog("Transformable/Binary type : \(data) not String")
             }
         case .ObjectIDAttributeType, .UndefinedAttributeType:
             break
@@ -765,7 +809,12 @@ extension Stormcloud {
         }
     }
     
-    
+    /**
+     Deletes the document represented by the metadataItem object
+     
+     - parameter metadataItem: The Stormcloud Metadata object that represents the document
+     - parameter completion:   The completion handler to run when the delete completes
+     */
     public func deleteItem(metadataItem : StormcloudMetadata, completion : (index : Int?, error : NSError?) -> () ) {
         
         if let itemURL = self.urlForItem(metadataItem), let idx = self.internalMetadataList.indexOf(metadataItem) {
@@ -790,18 +839,13 @@ extension Stormcloud {
                         try NSFileManager.defaultManager().removeItemAtURL(url)
                         self.internalMetadataList.removeAtIndex(idx)
                     } catch let error as NSError  {
-                        // TODO: More information for error handling. Custom enum and error in completion block
                         hasError = error
                     }
                     dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                        
-                        
                         completion(index : (hasError != nil) ? idx : nil, error: hasError)
                         self.sortDocuments()
                     })
                 })
-                
-                
             })
         } else {
 
@@ -931,9 +975,7 @@ extension Stormcloud {
 // MARK: - Local Document Handling
 
 extension Stormcloud {
-    
-    
-    // TODO: Rethrow this
+
     func listLocalDocuments() -> [NSURL] {
         let docs : [NSURL]
         if let url = self.documentsDirectory()  {
@@ -941,6 +983,7 @@ extension Stormcloud {
             do {
                 docs = try NSFileManager.defaultManager().contentsOfDirectoryAtURL(url, includingPropertiesForKeys: nil, options: NSDirectoryEnumerationOptions())
             } catch {
+                stormcloudLog("Error listing contents of \(url)")
                 
                 docs = []
             }
@@ -976,24 +1019,17 @@ extension Stormcloud {
     func loadiCloudDocuments() {
 
         if self.metadataQuery.stopped {
-            if StormcloudEnvironment.VerboseLogging.isEnabled() {
-                print("Metadata query stopped")
-                self.metadataQuery.startQuery()
-                return
-            }
+            stormcloudLog("Metadata query stopped")
+            self.metadataQuery.startQuery()
+            return
         }
         
         if self.metadataQuery.gathering {
-            if StormcloudEnvironment.VerboseLogging.isEnabled() {
-                print("Metadata query gathering")
-            }
+            stormcloudLog("Metadata query gathering")
             return
         }
-
-        if StormcloudEnvironment.VerboseLogging.isEnabled() {
-            print("Beginning metadata query")
-        }
-
+        
+        stormcloudLog("Beginning metadata query")
         
         self.metadataQuery.searchScopes = [NSMetadataQueryUbiquitousDocumentsScope]
         self.metadataQuery.predicate = NSPredicate(format: "%K CONTAINS '.json'", NSMetadataItemFSNameKey)
@@ -1002,8 +1038,6 @@ extension Stormcloud {
         NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("metadataUpdated"), name:NSMetadataQueryDidUpdateNotification, object: nil)
         
         self.metadataQuery.startQuery()
-        
-        
     }
     
     func iCloudDocumentsDirectory() -> NSURL? {
@@ -1017,9 +1051,7 @@ extension Stormcloud {
     
     func metadataFinishedGathering() {
         
-        if StormcloudEnvironment.VerboseLogging.isEnabled() {
-            print("Metadata finished gathering")
-        }
+        stormcloudLog("Metadata finished gathering")
         
 //        self.metadataQuery.stopQuery()
         self.metadataUpdated()
@@ -1027,15 +1059,11 @@ extension Stormcloud {
     
     func metadataUpdated() {
         
-        if StormcloudEnvironment.VerboseLogging.isEnabled() {
-            print("Metadata updated")
-        }
+        stormcloudLog("Metadata updated")
         
         if let items = self.metadataQuery.results as? [NSMetadataItem] {
             
-            if StormcloudEnvironment.VerboseLogging.isEnabled() {
-                print("Metadata query found \(items.count) items")
-            }
+            stormcloudLog("Metadata query found \(items.count) items")
             
             for item in items {
                 if let fname = item.valueForAttribute(NSMetadataItemDisplayNameKey) as? String {
@@ -1056,4 +1084,15 @@ extension Stormcloud {
         self.sortDocuments()
     }
 }
+
+extension Stormcloud {
+    func stormcloudLog( string : String ) {
+        if StormcloudEnvironment.VerboseLogging.isEnabled() {
+            print(string)
+        }
+    }
+    
+}
+
+
 

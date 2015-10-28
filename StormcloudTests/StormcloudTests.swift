@@ -32,12 +32,10 @@ class StormcloudTests: StormcloudTestsBaseClass {
         let expectation = expectationWithDescription("Backup expectation")
         
         
-        stormcloud.backupObjectsToJSON(["Test" : "Test"]) { (success, error, metadata) -> () in
-            XCTAssert(success, "Backing up should always write successfully")
-            if success {
+        stormcloud.backupObjectsToJSON(["Test" : "Test"]) { (error, metadata) -> () in
+            XCTAssertNil(error, "Backing up should always write successfully")
                 print(metadata?.filename)
                 XCTAssertNotNil(metadata, "If successful, the metadata field should be populated")
-            }
             expectation.fulfill()
             
         }
@@ -55,12 +53,11 @@ class StormcloudTests: StormcloudTestsBaseClass {
         let stormcloud = Stormcloud()
         
         let expectation = expectationWithDescription("Backup expectation")
-        stormcloud.backupObjectsToJSON(["Test" : "Test"]) { (success, error, metadata) -> () in
-            XCTAssert(success, "Backing up should always write successfully")
-            if success {
+        stormcloud.backupObjectsToJSON(["Test" : "Test"]) { (error, metadata) -> () in
+            XCTAssertNil(error, "Backing up should always write successfully")
+
                 print(metadata?.filename)
                 XCTAssertNotNil(metadata, "If successful, the metadata field should be populated")
-            }
             expectation.fulfill()
         }
         waitForExpectationsWithTimeout(3.0, handler: nil)
@@ -96,9 +93,9 @@ class StormcloudTests: StormcloudTestsBaseClass {
         XCTAssertEqual(stormcloud.metadataList.count, newDocs.count)
         
         let expectation = expectationWithDescription("Adding new item")
-        stormcloud.backupObjectsToJSON(["Test" : "Test"]) { (success, error,  metadata) -> () in
+        stormcloud.backupObjectsToJSON(["Test" : "Test"]) { ( error,  metadata) -> () in
             
-            XCTAssert(success)
+            XCTAssertNil(error)
             
             XCTAssertEqual(stormcloud.metadataList.count, 3)
 
@@ -132,9 +129,9 @@ class StormcloudTests: StormcloudTestsBaseClass {
         }
         
         let expectation = expectationWithDescription("Adding new item")
-        stormcloud.backupObjectsToJSON(["Test" : "Test"]) { (success, error,  metadata) -> () in
+        stormcloud.backupObjectsToJSON(["Test" : "Test"]) { (error,  metadata) -> () in
             
-            XCTAssert(success)
+            XCTAssertNil(error)
             
             if let hasMetadata = metadata {
                 let dateComponents = NSCalendar.currentCalendar().components([.Year, .Month, .Day, .Hour, .Minute], fromDate: hasMetadata.date)
@@ -148,6 +145,8 @@ class StormcloudTests: StormcloudTestsBaseClass {
         }
         waitForExpectationsWithTimeout(3.0, handler: nil)
         
+        
+        
     }
     
     
@@ -160,9 +159,9 @@ class StormcloudTests: StormcloudTestsBaseClass {
         XCTAssertEqual(stormcloud.metadataList.count, newDocs.count)
 
         let expectation = expectationWithDescription("Adding new item")
-        stormcloud.backupObjectsToJSON(["Test" : "Test"]) { (success, error,  metadata) -> () in
+        stormcloud.backupObjectsToJSON(["Test" : "Test"]) { (error,  metadata) -> () in
             
-            XCTAssert(success)
+            XCTAssertNil(error)
             
             XCTAssertEqual(stormcloud.metadataList.count, 2)
             
@@ -180,6 +179,36 @@ class StormcloudTests: StormcloudTestsBaseClass {
         } else {
             XCTFail("Too many documents")
         }
+    }
+    
+    func testThatRestoringAFileWorks() {
+        self.copyItems()
+        let stormcloud = Stormcloud()
+        let newDocs = self.listItemsAtURL()
+        XCTAssertEqual(stormcloud.metadataList.count, 2)
+        XCTAssertEqual(stormcloud.metadataList.count, newDocs.count)
+        let expectation = expectationWithDescription("Restoring item")        
+        
+        let metadata = stormcloud.metadataList[0]
+        
+        stormcloud.restoreBackup(withMetadata: metadata) { (error, restoredObjects) -> () in
+            XCTAssertNil(error)
+            
+            XCTAssertNotNil(restoredObjects)
+            
+            if let dictionary = restoredObjects as? [String : AnyObject], model = dictionary["Model"] as? String {
+                XCTAssertEqual(model, "iPhone")
+                
+            } else {
+                XCTFail("Restored objects not valid")
+            }
+            
+            expectation.fulfill()
+            
+        }
+        
+        waitForExpectationsWithTimeout(4.0, handler: nil)
+        
     }
     
     

@@ -252,7 +252,7 @@ extension DocumentsTableViewController {
 //        }
 
         if let context = self.stack?.managedObjectContext {
-            self.documentsManager.backupCoreDataEntities(inContext: context, completion: { (success, error, metadata) -> () in
+            self.documentsManager.backupCoreDataEntities(inContext: context, completion: { (error, metadata) -> () in
 
                 var title = NSLocalizedString("Success!", comment: "The title of the alert box shown when a backup successfully completes")
                 var message = NSLocalizedString("Successfully backed up all Core Data entities.", comment: "The message when the backup manager successfully completes")

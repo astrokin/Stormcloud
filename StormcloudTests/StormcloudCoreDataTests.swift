@@ -86,8 +86,8 @@ class StormcloudCoreDataTests: StormcloudTestsBaseClass {
         }
         let expectation = expectationWithDescription("Insert expectation")
         
-        manager.backupCoreDataEntities(inContext: context) { (success, error, metadata) -> () in
-            if !success {
+        manager.backupCoreDataEntities(inContext: context) { (error, metadata) -> () in
+            if let _ = error {
                 XCTFail("Failed to back up Core Data entites")
                 
             }
