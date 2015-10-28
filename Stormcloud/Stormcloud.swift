@@ -243,6 +243,9 @@ public class Stormcloud: NSObject {
     
     func iCloudUserChanged( notification : NSNotification ) {
         // Handle user changing
+        
+        self.prepareDocumentList()
+        
     }
     
     deinit {

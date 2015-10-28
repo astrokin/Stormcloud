@@ -148,8 +148,6 @@ class StormcloudTests: StormcloudTestsBaseClass {
         }
         waitForExpectationsWithTimeout(3.0, handler: nil)
         
-        
-        
     }
     
     

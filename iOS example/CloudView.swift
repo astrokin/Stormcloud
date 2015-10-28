@@ -47,14 +47,14 @@ class CloudView: UIView {
         let centerX = CGRectGetMidX(self.bounds)
         let centerY = CGRectGetMidY(self.bounds)
         
-        let quarterX = centerX / 2
-        let quarterY = centerY / 2
+//        let quarterX = centerX / 2
+//        let quarterY = centerY / 2
         
         let width = CGRectGetWidth(self.bounds)
-        let height = CGRectGetHeight(self.bounds)
+//        let height = CGRectGetHeight(self.bounds)
         
         let thirdX = width / 3
-        let thirdY = height / 3
+//        let thirdY = height / 3
         
         let bottomLeftRect = CGRectMake(0, centerY, thirdX, centerY)
         let bottomLeftPath = UIBezierPath(ovalInRect: bottomLeftRect)
