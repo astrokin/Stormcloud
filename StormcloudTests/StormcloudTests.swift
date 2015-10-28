@@ -153,5 +153,36 @@ class StormcloudTests: StormcloudTestsBaseClass {
     }
     
     
+    func testThatMaximumBackupLimitsAreRespected() {
+        self.copyItems()
+        let stormcloud = Stormcloud()
+        stormcloud.fileLimit = 2
+        let newDocs = self.listItemsAtURL()
+        XCTAssertEqual(stormcloud.metadataList.count, 2)
+        XCTAssertEqual(stormcloud.metadataList.count, newDocs.count)
+
+        let expectation = expectationWithDescription("Adding new item")
+        stormcloud.backupObjectsToJSON(["Test" : "Test"]) { (success, error,  metadata) -> () in
+            
+            XCTAssert(success)
+            
+            XCTAssertEqual(stormcloud.metadataList.count, 2)
+            
+            expectation.fulfill()
+        }
+        waitForExpectationsWithTimeout(3.0, handler: nil)
+        
+        let stillTwoDocs = self.listItemsAtURL()
+        XCTAssertEqual(stormcloud.metadataList.count, stillTwoDocs.count)
+        
+        if stormcloud.metadataList.count == 2 {
+            // It should delete the oldest one
+            XCTAssert(stormcloud.metadataList[0].filename.containsString("2020"))
+            XCTAssert(stormcloud.metadataList[1].filename.containsString("2015"))
+        } else {
+            XCTFail("Too many documents")
+        }
+    }
+    
     
 }

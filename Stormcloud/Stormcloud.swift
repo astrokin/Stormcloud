@@ -89,6 +89,9 @@ public class Stormcloud: NSObject {
     /// The backup manager delegate
     public var delegate : StormcloudDelegate?
     
+    /// The number of files to keep before older ones are deleted. 0 = never delete.
+    public var fileLimit : Int = 0
+    
     var formatter = NSDateFormatter()
     
     var iCloudURL : NSURL?
@@ -282,6 +285,31 @@ extension Stormcloud {
         }
         self.operationInProgress = true
         
+        
+        // Knock one off as we're about to back up
+        let limit = self.fileLimit - 1
+        if self.fileLimit > 0 && self.metadataList.count > limit {
+            for var i = limit; i < self.metadataList.count; i++ {
+                let metadata = self.metadataList[i]
+                
+                let backupCompletion = completion
+                var success = true
+                self.deleteItem(metadata, completion: { (index, error) -> () in
+                    if let _ = error {
+                        success = false
+                        backupCompletion(success: false, error: .CouldntDelete, metadata: metadata)
+                    }
+                })
+                if !success {
+                    self.operationInProgress = false
+                    return
+                }
+                
+            }
+            self.sortDocuments()
+        }
+        
+
         
         if let baseURL = self.documentsDirectory() {
             let metadata = StormcloudMetadata()
