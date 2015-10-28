@@ -1,5 +1,3 @@
-# Stormcloud
-
 <img src="http://images.neverendingvoyage.com/github/StormcloudLogo.png" width="400" style="margin : 0 auto; display: block;" />
 
 Stormcloud is an easy way to convert and write JSON to iCloud documents and back.
