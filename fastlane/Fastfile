@@ -40,8 +40,12 @@ platform :ios do
 	)
 	git_commit(path: ["./Stormcloud/Info.plist", "./Stormcloud.xcodeproj/project.pbxproj", "StormcloudTests/Info.plist", "Stormcloud.podspec"], message: "Version Bump")
 	push_to_git_remote
-	
+	pod_trunk(path: 'Stormcloud.podspec')
   end
+  
+  lane :testNote do
+
+  end  
 
   # You can define as many lanes as you want
 
