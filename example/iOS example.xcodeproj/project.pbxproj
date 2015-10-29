@@ -10,8 +10,6 @@
 		F48421381BDCD42D00C98567 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48421371BDCD42D00C98567 /* AppDelegate.swift */; };
 		F48421411BDCD42D00C98567 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F48421401BDCD42D00C98567 /* Assets.xcassets */; };
 		F48421441BDCD42D00C98567 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F48421421BDCD42D00C98567 /* LaunchScreen.storyboard */; };
-		F48421711BDCD51800C98567 /* Stormcloud.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F484216E1BDCD50200C98567 /* Stormcloud.framework */; };
-		F48421731BDCD52800C98567 /* Stormcloud.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = F484216E1BDCD50200C98567 /* Stormcloud.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		F484217A1BDCD5C400C98567 /* Cloud.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48421741BDCD5C400C98567 /* Cloud.swift */; };
 		F484217B1BDCD5C400C98567 /* Cloud+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48421751BDCD5C400C98567 /* Cloud+CoreDataProperties.swift */; };
 		F484217C1BDCD5C400C98567 /* clouds.xcdatamodel in Sources */ = {isa = PBXBuildFile; fileRef = F48421761BDCD5C400C98567 /* clouds.xcdatamodel */; };
@@ -30,16 +28,16 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		F484216D1BDCD50200C98567 /* PBXContainerItemProxy */ = {
+		F46233331BE243EF00A97836 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = F48421681BDCD50200C98567 /* Stormcloud.xcodeproj */;
+			containerPortal = F462332E1BE243EF00A97836 /* Stormcloud.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = F4E2E94F1BDCC8AF00A63FAF;
 			remoteInfo = Stormcloud;
 		};
-		F484216F1BDCD50200C98567 /* PBXContainerItemProxy */ = {
+		F46233351BE243EF00A97836 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = F48421681BDCD50200C98567 /* Stormcloud.xcodeproj */;
+			containerPortal = F462332E1BE243EF00A97836 /* Stormcloud.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = F4E2E9591BDCC8AF00A63FAF;
 			remoteInfo = StormcloudTests;
@@ -53,19 +51,18 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				F48421731BDCD52800C98567 /* Stormcloud.framework in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		F462332E1BE243EF00A97836 /* Stormcloud.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Stormcloud.xcodeproj; path = ../Stormcloud.xcodeproj; sourceTree = "<group>"; };
 		F48421341BDCD42D00C98567 /* iOS example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "iOS example.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		F48421371BDCD42D00C98567 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		F48421401BDCD42D00C98567 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		F48421431BDCD42D00C98567 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		F48421451BDCD42D00C98567 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		F48421681BDCD50200C98567 /* Stormcloud.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = Stormcloud.xcodeproj; sourceTree = "<group>"; };
 		F48421741BDCD5C400C98567 /* Cloud.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Cloud.swift; path = StormcloudTests/Cloud.swift; sourceTree = SOURCE_ROOT; };
 		F48421751BDCD5C400C98567 /* Cloud+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "Cloud+CoreDataProperties.swift"; path = "StormcloudTests/Cloud+CoreDataProperties.swift"; sourceTree = SOURCE_ROOT; };
 		F48421761BDCD5C400C98567 /* clouds.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; name = clouds.xcdatamodel; path = StormcloudTests/clouds.xcdatamodel; sourceTree = SOURCE_ROOT; };
@@ -89,19 +86,27 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F48421711BDCD51800C98567 /* Stormcloud.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		F462332F1BE243EF00A97836 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				F46233341BE243EF00A97836 /* Stormcloud.framework */,
+				F46233361BE243EF00A97836 /* StormcloudTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		F484212B1BDCD42D00C98567 = {
 			isa = PBXGroup;
 			children = (
 				F48421361BDCD42D00C98567 /* iOS example */,
 				F48421351BDCD42D00C98567 /* Products */,
-				F48421681BDCD50200C98567 /* Stormcloud.xcodeproj */,
+				F462332E1BE243EF00A97836 /* Stormcloud.xcodeproj */,
 			);
 			sourceTree = "<group>";
 		};
@@ -127,15 +132,6 @@
 				F48421451BDCD42D00C98567 /* Info.plist */,
 			);
 			path = "iOS example";
-			sourceTree = "<group>";
-		};
-		F48421691BDCD50200C98567 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				F484216E1BDCD50200C98567 /* Stormcloud.framework */,
-				F48421701BDCD50200C98567 /* StormcloudTests.xctest */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 		F48421801BDCD5C900C98567 /* Model */ = {
@@ -228,8 +224,8 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
-					ProductGroup = F48421691BDCD50200C98567 /* Products */;
-					ProjectRef = F48421681BDCD50200C98567 /* Stormcloud.xcodeproj */;
+					ProductGroup = F462332F1BE243EF00A97836 /* Products */;
+					ProjectRef = F462332E1BE243EF00A97836 /* Stormcloud.xcodeproj */;
 				},
 			);
 			projectRoot = "";
@@ -240,18 +236,18 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		F484216E1BDCD50200C98567 /* Stormcloud.framework */ = {
+		F46233341BE243EF00A97836 /* Stormcloud.framework */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.framework;
 			path = Stormcloud.framework;
-			remoteRef = F484216D1BDCD50200C98567 /* PBXContainerItemProxy */;
+			remoteRef = F46233331BE243EF00A97836 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		F48421701BDCD50200C98567 /* StormcloudTests.xctest */ = {
+		F46233361BE243EF00A97836 /* StormcloudTests.xctest */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.cfbundle;
 			path = StormcloudTests.xctest;
-			remoteRef = F484216F1BDCD50200C98567 /* PBXContainerItemProxy */;
+			remoteRef = F46233351BE243EF00A97836 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
