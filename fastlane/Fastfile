@@ -35,10 +35,10 @@ platform :ios do
   lane :deploy do
     # snapshot
     version = version_bump_podspec(path: "Stormcloud.podspec", bump_type: "patch")
+	git_commit(path: ["./Stormcloud/Info.plist", "./Stormcloud.xcodeproj/project.pbxproj", "StormcloudTests/Info.plist", "Stormcloud.podspec"], message: "Version Bump")
     add_git_tag(
  	 tag: version,
-	)
-	git_commit(path: ["./Stormcloud/Info.plist", "./Stormcloud.xcodeproj/project.pbxproj", "StormcloudTests/Info.plist", "Stormcloud.podspec"], message: "Version Bump")
+	)	
 	push_to_git_remote
 	pod_trunk(path: 'Stormcloud.podspec')
   end
