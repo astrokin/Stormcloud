@@ -21,7 +21,7 @@ stormcloud.backupObjectsToJSON( objects : AnyObject, completion : (error : Storm
     } 
 
     if let newMetadata = metadata {
-        print("Successfully added new metadata with filename: \(metadata.filename)")
+        print("Successfully added new document with filename: \(metadata.filename)")
     }
 })
 
@@ -48,7 +48,7 @@ stormcloud.backupCoreDataEntities(inContext: self.managedObjectContext, completi
     } 
 
     if let newMetadata = metadata {
-        print("Successfully added new metadata with filename: \(metadata.filename)")
+        print("Successfully added new document with filename: \(metadata.filename)")
     }
 
 })
