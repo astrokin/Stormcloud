@@ -38,6 +38,9 @@ platform :ios do
     add_git_tag(
  	 tag: version,
 	)
+	git_commit(message: "Version Bump")
+	push_to_git_remote
+	
   end
 
   # You can define as many lanes as you want
