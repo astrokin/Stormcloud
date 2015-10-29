@@ -38,7 +38,7 @@ platform :ios do
     add_git_tag(
  	 tag: version,
 	)
-	git_commit(message: "Version Bump")
+	git_commit(path: ["./Stormcloud/Info.plist", "./Stormcloud.xcodeproj/project.pbxproj", "StormcloudTests/Info.plist", "Stormcloud.podspec"], message: "Version Bump")
 	push_to_git_remote
 	
   end
