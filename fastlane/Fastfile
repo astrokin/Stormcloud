@@ -12,7 +12,7 @@
 # opt_out_usage
 
 # If you want to automatically update fastlane if a new version is available:
-# update_fastlane
+update_fastlane
 
 # This is the minimum version number required.
 # Update this, if you use features of a newer version
@@ -23,8 +23,7 @@ default_platform :ios
 
 platform :ios do
   before_all do
-    # ENV["SLACK_URL"] = "https://hooks.slack.com/services/..."
-    
+
     ensure_git_status_clean
     increment_build_number
 
@@ -32,16 +31,29 @@ platform :ios do
   end
 
   desc "Runs all the tests"
-  lane :deploy do
+  lane :patch do
     # snapshot
+    increment_version_number
     version = version_bump_podspec(path: "Stormcloud.podspec", bump_type: "patch")
-	git_commit(path: ["./Stormcloud/Info.plist", "./Stormcloud.xcodeproj/project.pbxproj", "StormcloudTests/Info.plist", "Stormcloud.podspec"], message: "Version Bump")
+	commit_version_bump
     add_git_tag(
  	 tag: version,
 	)	
 	push_to_git_remote
 	pod_trunk(path: 'Stormcloud.podspec')
   end
+  
+  lane :minor do
+    # snapshot
+    increment_version_number( bump_type : "minor" )
+    version = version_bump_podspec(path: "Stormcloud.podspec", bump_type: "minor")
+	commit_version_bump
+    add_git_tag(
+ 	 tag: version,
+	)	
+	push_to_git_remote
+	pod_trunk(path: 'Stormcloud.podspec')
+  end  
   
   lane :testNote do
 
@@ -51,17 +63,11 @@ platform :ios do
 
   after_all do |lane|
     # This block is called, only if the executed lane was successful
-    notification(subtitle: "Stormcloud processing finished", message: "Completed '#{lane}' successfully")
-    # slack(
-    #   message: "Successfully deployed new App Update."
-    # )
+    notification(subtitle: "Stormcloud fastlane finished", message: "Completed '#{lane}' successfully")
   end
 
   error do |lane, exception|
-    # slack(
-    #   message: exception.message,
-    #   success: false
-    # )
+    notification(subtitle: "Error: Stormcloud fastlane", message: "'#{exception.message}'")
   end
 end
 
