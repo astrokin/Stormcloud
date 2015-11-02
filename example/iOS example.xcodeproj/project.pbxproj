@@ -7,15 +7,17 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F43811891BE759CB0030D9FD /* StormcloudTestsCoreDataStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = F43811831BE759CB0030D9FD /* StormcloudTestsCoreDataStack.swift */; };
+		F438118A1BE759CB0030D9FD /* Cloud.swift in Sources */ = {isa = PBXBuildFile; fileRef = F43811841BE759CB0030D9FD /* Cloud.swift */; };
+		F438118B1BE759CB0030D9FD /* Cloud+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = F43811851BE759CB0030D9FD /* Cloud+CoreDataProperties.swift */; };
+		F438118C1BE759CB0030D9FD /* clouds.xcdatamodel in Sources */ = {isa = PBXBuildFile; fileRef = F43811861BE759CB0030D9FD /* clouds.xcdatamodel */; };
+		F438118D1BE759CB0030D9FD /* Raindrop.swift in Sources */ = {isa = PBXBuildFile; fileRef = F43811871BE759CB0030D9FD /* Raindrop.swift */; };
+		F438118E1BE759CB0030D9FD /* Raindrop+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = F43811881BE759CB0030D9FD /* Raindrop+CoreDataProperties.swift */; };
+		F438118F1BE759E60030D9FD /* Stormcloud.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F46233341BE243EF00A97836 /* Stormcloud.framework */; };
+		F43811901BE759E80030D9FD /* Stormcloud.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = F46233341BE243EF00A97836 /* Stormcloud.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		F48421381BDCD42D00C98567 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48421371BDCD42D00C98567 /* AppDelegate.swift */; };
 		F48421411BDCD42D00C98567 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F48421401BDCD42D00C98567 /* Assets.xcassets */; };
 		F48421441BDCD42D00C98567 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F48421421BDCD42D00C98567 /* LaunchScreen.storyboard */; };
-		F484217A1BDCD5C400C98567 /* Cloud.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48421741BDCD5C400C98567 /* Cloud.swift */; };
-		F484217B1BDCD5C400C98567 /* Cloud+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48421751BDCD5C400C98567 /* Cloud+CoreDataProperties.swift */; };
-		F484217C1BDCD5C400C98567 /* clouds.xcdatamodel in Sources */ = {isa = PBXBuildFile; fileRef = F48421761BDCD5C400C98567 /* clouds.xcdatamodel */; };
-		F484217D1BDCD5C400C98567 /* Raindrop.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48421771BDCD5C400C98567 /* Raindrop.swift */; };
-		F484217E1BDCD5C400C98567 /* Raindrop+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48421781BDCD5C400C98567 /* Raindrop+CoreDataProperties.swift */; };
-		F484217F1BDCD5C400C98567 /* StormcloudTestsCoreDataStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48421791BDCD5C400C98567 /* StormcloudTestsCoreDataStack.swift */; };
 		F48421881BDCD6B700C98567 /* CloudDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48421831BDCD6B700C98567 /* CloudDetailViewController.swift */; };
 		F48421891BDCD6B700C98567 /* DetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48421841BDCD6B700C98567 /* DetailViewController.swift */; };
 		F484218A1BDCD6B700C98567 /* DocumentsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48421851BDCD6B700C98567 /* DocumentsTableViewController.swift */; };
@@ -51,24 +53,25 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				F43811901BE759E80030D9FD /* Stormcloud.framework in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		F43811831BE759CB0030D9FD /* StormcloudTestsCoreDataStack.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = StormcloudTestsCoreDataStack.swift; path = ../../StormcloudTests/StormcloudTestsCoreDataStack.swift; sourceTree = "<group>"; };
+		F43811841BE759CB0030D9FD /* Cloud.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Cloud.swift; path = ../../StormcloudTests/Cloud.swift; sourceTree = "<group>"; };
+		F43811851BE759CB0030D9FD /* Cloud+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "Cloud+CoreDataProperties.swift"; path = "../../StormcloudTests/Cloud+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		F43811861BE759CB0030D9FD /* clouds.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; name = clouds.xcdatamodel; path = ../../StormcloudTests/clouds.xcdatamodel; sourceTree = "<group>"; };
+		F43811871BE759CB0030D9FD /* Raindrop.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Raindrop.swift; path = ../../StormcloudTests/Raindrop.swift; sourceTree = "<group>"; };
+		F43811881BE759CB0030D9FD /* Raindrop+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "Raindrop+CoreDataProperties.swift"; path = "../../StormcloudTests/Raindrop+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		F462332E1BE243EF00A97836 /* Stormcloud.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Stormcloud.xcodeproj; path = ../Stormcloud.xcodeproj; sourceTree = "<group>"; };
 		F48421341BDCD42D00C98567 /* iOS example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "iOS example.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		F48421371BDCD42D00C98567 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		F48421401BDCD42D00C98567 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		F48421431BDCD42D00C98567 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		F48421451BDCD42D00C98567 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		F48421741BDCD5C400C98567 /* Cloud.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Cloud.swift; path = StormcloudTests/Cloud.swift; sourceTree = SOURCE_ROOT; };
-		F48421751BDCD5C400C98567 /* Cloud+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "Cloud+CoreDataProperties.swift"; path = "StormcloudTests/Cloud+CoreDataProperties.swift"; sourceTree = SOURCE_ROOT; };
-		F48421761BDCD5C400C98567 /* clouds.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; name = clouds.xcdatamodel; path = StormcloudTests/clouds.xcdatamodel; sourceTree = SOURCE_ROOT; };
-		F48421771BDCD5C400C98567 /* Raindrop.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Raindrop.swift; path = StormcloudTests/Raindrop.swift; sourceTree = SOURCE_ROOT; };
-		F48421781BDCD5C400C98567 /* Raindrop+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "Raindrop+CoreDataProperties.swift"; path = "StormcloudTests/Raindrop+CoreDataProperties.swift"; sourceTree = SOURCE_ROOT; };
-		F48421791BDCD5C400C98567 /* StormcloudTestsCoreDataStack.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = StormcloudTestsCoreDataStack.swift; path = StormcloudTests/StormcloudTestsCoreDataStack.swift; sourceTree = SOURCE_ROOT; };
 		F48421831BDCD6B700C98567 /* CloudDetailViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CloudDetailViewController.swift; sourceTree = "<group>"; };
 		F48421841BDCD6B700C98567 /* DetailViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DetailViewController.swift; sourceTree = "<group>"; };
 		F48421851BDCD6B700C98567 /* DocumentsTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DocumentsTableViewController.swift; sourceTree = "<group>"; };
@@ -86,6 +89,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F438118F1BE759E60030D9FD /* Stormcloud.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -137,12 +141,12 @@
 		F48421801BDCD5C900C98567 /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				F48421741BDCD5C400C98567 /* Cloud.swift */,
-				F48421751BDCD5C400C98567 /* Cloud+CoreDataProperties.swift */,
-				F48421761BDCD5C400C98567 /* clouds.xcdatamodel */,
-				F48421771BDCD5C400C98567 /* Raindrop.swift */,
-				F48421781BDCD5C400C98567 /* Raindrop+CoreDataProperties.swift */,
-				F48421791BDCD5C400C98567 /* StormcloudTestsCoreDataStack.swift */,
+				F43811831BE759CB0030D9FD /* StormcloudTestsCoreDataStack.swift */,
+				F43811841BE759CB0030D9FD /* Cloud.swift */,
+				F43811851BE759CB0030D9FD /* Cloud+CoreDataProperties.swift */,
+				F43811861BE759CB0030D9FD /* clouds.xcdatamodel */,
+				F43811871BE759CB0030D9FD /* Raindrop.swift */,
+				F43811881BE759CB0030D9FD /* Raindrop+CoreDataProperties.swift */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -270,21 +274,21 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F438118C1BE759CB0030D9FD /* clouds.xcdatamodel in Sources */,
 				F48421891BDCD6B700C98567 /* DetailViewController.swift in Sources */,
 				F48421921BDCD7E600C98567 /* Helpers.swift in Sources */,
-				F484217C1BDCD5C400C98567 /* clouds.xcdatamodel in Sources */,
+				F438118A1BE759CB0030D9FD /* Cloud.swift in Sources */,
 				F484219A1BDCDC6300C98567 /* CloudView.swift in Sources */,
 				F48421901BDCD76300C98567 /* StormcloudFetchedResultsController.swift in Sources */,
+				F438118D1BE759CB0030D9FD /* Raindrop.swift in Sources */,
 				F484218A1BDCD6B700C98567 /* DocumentsTableViewController.swift in Sources */,
-				F484217F1BDCD5C400C98567 /* StormcloudTestsCoreDataStack.swift in Sources */,
-				F484217E1BDCD5C400C98567 /* Raindrop+CoreDataProperties.swift in Sources */,
 				F48421881BDCD6B700C98567 /* CloudDetailViewController.swift in Sources */,
-				F484217A1BDCD5C400C98567 /* Cloud.swift in Sources */,
 				F48421381BDCD42D00C98567 /* AppDelegate.swift in Sources */,
-				F484217B1BDCD5C400C98567 /* Cloud+CoreDataProperties.swift in Sources */,
 				F484218B1BDCD6B700C98567 /* RaindropView.swift in Sources */,
-				F484217D1BDCD5C400C98567 /* Raindrop.swift in Sources */,
 				F484218C1BDCD6B700C98567 /* SettingsViewController.swift in Sources */,
+				F43811891BE759CB0030D9FD /* StormcloudTestsCoreDataStack.swift in Sources */,
+				F438118B1BE759CB0030D9FD /* Cloud+CoreDataProperties.swift in Sources */,
+				F438118E1BE759CB0030D9FD /* Raindrop+CoreDataProperties.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

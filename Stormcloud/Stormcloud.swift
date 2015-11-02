@@ -657,8 +657,9 @@ extension Stormcloud {
                     self.stormcloudLog("Error saving during restore")
                 }
                 
-                // TESTING
-                self.stormcloudLog("After save: \(testObject!.objectID.URIRepresentation().absoluteString)")
+                if let _ = testObject {
+                    self.stormcloudLog("After save: \(testObject!.objectID.URIRepresentation().absoluteString)")
+                }
                 
                 for object in allObjects {
                     if let relationshipData = data[object.objectID.URIRepresentation().absoluteString] as? [String : AnyObject] {
