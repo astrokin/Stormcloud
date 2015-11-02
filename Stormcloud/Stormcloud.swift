@@ -410,6 +410,8 @@ extension Stormcloud {
     
     public func backupCoreDataEntities( inContext context : NSManagedObjectContext, completion : ( error : StormcloudError?, metadata : StormcloudMetadata?) -> () ) {
         
+        self.stormcloudLog("Beginning backup of Core Data with context : \(context)")
+        
         do {
             try context.save()
         } catch {
@@ -697,12 +699,7 @@ extension Stormcloud {
                 if let url = NSURL(string: id), objectID = inContext.persistentStoreCoordinator?.managedObjectIDForURIRepresentation(url) {
                     let relatedObject = inContext.objectWithID(objectID)
                     if !relationship.toMany {
-                        let name = relatedObject.valueForKey("name")
-                        let relatedName = onObject.valueForKey("type")
-                        stormcloudLog("Added \(name) to \(relatedName)")
-                        
                         onObject.setValue(relatedObject, forKey: relationship.name)
-                        
                     } else {
                         setObjects.append(relatedObject)
                     }
