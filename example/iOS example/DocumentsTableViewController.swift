@@ -287,8 +287,7 @@ extension DocumentsTableViewController {
                 
                 
             })
-
-            
+            self.stack?.save()
         }
         
         

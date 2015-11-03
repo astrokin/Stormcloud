@@ -9,6 +9,9 @@
 import CoreData
 import Stormcloud
 
+
+
+
 public enum CoreDataStackEnvironmentVariables : String, StormcloudEnvironmentVariable {
     case UseMemoryStore = "StormcloudUseMemoryStore"
     
@@ -24,8 +27,8 @@ public protocol CoreDataStackFetchTemplate {
 
 public protocol CoreDataStackDelegate {
     /**
-    The location where you would like the SQLite database stored. Default is application document's directory, return nil to keep it there
-    */
+     The location where you would like the SQLite database stored. Default is application document's directory, return nil to keep it there
+     */
     func storeDirectory() -> NSURL?
 }
 
@@ -51,13 +54,13 @@ public class CoreDataStack {
     internal var persistentStoreCoordinator: NSPersistentStoreCoordinator?
     
     /**
-    Initialises the core data stack, setting up the managed object model, the managed object contexts, and the persistent store coordinator.
-    
-    This method does NOT attach a persistent store to the coordinator. You will need to run setupStore in order to finish setting up the store.
-    
-    - parameter modelName: The name of the xcdatamodeld file to use. Also forms the basis for the name of the sqlite database
-    
-    */
+     Initialises the core data stack, setting up the managed object model, the managed object contexts, and the persistent store coordinator.
+     
+     This method does NOT attach a persistent store to the coordinator. You will need to run setupStore in order to finish setting up the store.
+     
+     - parameter modelName: The name of the xcdatamodeld file to use. Also forms the basis for the name of the sqlite database
+     
+     */
     public init( modelName : String ) {
         self.modelName = modelName
         initialiseCoreData()
@@ -79,10 +82,10 @@ public class CoreDataStack {
     }
     
     /**
-    Call this to finish setting up the store once you've set any additional properties.
-    
-    - parameter callback: The callback you want to run once the store is set up. Runs on the main thread.
-    */
+     Call this to finish setting up the store once you've set any additional properties.
+     
+     - parameter callback: The callback you want to run once the store is set up. Runs on the main thread.
+     */
     public func setupStore(callback : (() -> Void)?) {
         
         self.callback = callback
@@ -144,8 +147,8 @@ public class CoreDataStack {
     }
     
     /**
-    Saves the managed object contexts
-    */
+     Saves the managed object contexts
+     */
     public func save() {
         if self.managedObjectContext?.hasChanges == false && self.privateContext?.hasChanges == false {
             return
@@ -194,8 +197,8 @@ public class CoreDataStack {
     }
     
     /**
-    Use this for versions of iOS < 9.0 and OS X < 10.11 to delete the store files.
-    */
+     Use this for versions of iOS < 9.0 and OS X < 10.11 to delete the store files.
+     */
     public func deleteStore() {
         save()
         
@@ -203,8 +206,8 @@ public class CoreDataStack {
         
         managedObjectContext = nil
         privateContext = nil
-
-let storeURL = self.applicationDocumentsDirectory().URLByAppendingPathComponent("\(self.modelName).sqlite")
+        
+        let storeURL = self.applicationDocumentsDirectory().URLByAppendingPathComponent("\(self.modelName).sqlite")
         
         if #available(iOS 9.0, OSX 10.9, *) {
             

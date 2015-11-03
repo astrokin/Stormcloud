@@ -403,7 +403,6 @@ extension Stormcloud {
                         for object in allObjects {
                             let uriRepresentation = object.objectID.URIRepresentation().absoluteString
                             
-                            
                             var internalDictionary : [String : AnyObject] = [StormcloudEntityKeys.EntityType.rawValue : entityName]
                             
                             for propertyDescription in entity.properties {
@@ -512,6 +511,15 @@ extension Stormcloud {
                         self.stormcloudLog("Error saving parent context")
                         abort()
                     }
+                    
+                    if let parentContext = context.parentContext {
+                        do {
+                            try parentContext.save()
+                        } catch {
+                            // TODO : Better error handling
+                            self.stormcloudLog("Error saving top level")
+                        }
+                    }
                 })
                 
                 var allObjects : [NSManagedObject] = []
@@ -554,7 +562,7 @@ extension Stormcloud {
                 if StormcloudEnvironment.VerboseLogging.isEnabled() {
                     
                     for object in allObjects {
-                        self.stormcloudLog("\t\tNew ID: \(object.objectID.temporaryID)")
+                        self.stormcloudLog("\t\tIs Temporary ID: \(object.objectID.temporaryID)")
                         self.stormcloudLog("\t\t\tNew ID: \(object.objectID)")
                     }
                     
@@ -574,6 +582,15 @@ extension Stormcloud {
                         // TODO : Better error handling
                         self.stormcloudLog("Error saving parent context")
                     }
+                    if let parentContext = context.parentContext {
+                        do {
+                            try parentContext.save()
+                        } catch {
+                            // TODO : Better error handling
+                            self.stormcloudLog("Error saving top level")
+                        }
+                    }
+                    
                 })
                 
                 
@@ -607,6 +624,14 @@ extension Stormcloud {
     
     func setRelationship( relationship : NSRelationshipDescription, onObject : NSManagedObject, withData data: [ String : AnyObject], inContext : NSManagedObjectContext ) {
         
+        
+        
+        if let _ =  inContext.objectRegisteredForID(onObject.objectID) {
+            
+        } else {
+            return;
+        }
+        
         if let relationshipIDs = data[relationship.name] as? [String] {
             var setObjects : [NSManagedObject] = []
             for id in relationshipIDs {
@@ -615,7 +640,7 @@ extension Stormcloud {
                 
                 if let cacheData = self.workingCache[id] as? [String : AnyObject], relatedObject = cacheData[StormcloudEntityKeys.ManagedObject.rawValue] as? NSManagedObject {
                     if !relationship.toMany {
-                        self.stormcloudLog("\tRestoring To-one relationship \(relationship.name)")
+                        self.stormcloudLog("\tRestoring To-one relationship \(onObject.entity.name) -> \(relationship.name)")
                         onObject.setValue(relatedObject, forKey: relationship.name)
                     } else {
                         setObjects.append(relatedObject)
@@ -628,7 +653,9 @@ extension Stormcloud {
 //
 //                }
             }
-            if relationship.toMany {
+            
+            
+            if relationship.toMany && setObjects.count > 0 {
                 self.stormcloudLog("\tRestoring To-many relationship \(onObject.entity.name) ->> \(relationship.name) with \(setObjects.count) objects")
                 if relationship.ordered {
                     

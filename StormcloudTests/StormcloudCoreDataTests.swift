@@ -16,6 +16,10 @@ enum StormcloudTestError : ErrorType {
 
 class StormcloudCoreDataTests: StormcloudTestsBaseClass {
 
+    let totalTags = 4
+    let totalClouds = 2
+    let totalRaindrops = 2
+    
     let stack = CoreDataStack(modelName: "clouds")
 
     let manager = Stormcloud()
@@ -43,6 +47,20 @@ class StormcloudCoreDataTests: StormcloudTestsBaseClass {
         }
     }
     
+    func insertTagWithName(name : String ) throws -> Tag {
+        if let context = self.stack.managedObjectContext {
+            do {
+                return try Tag.insertTagWithName(name, inContext: context)
+            } catch {
+                XCTFail("Couldn't create drop")
+                throw StormcloudTestError.CouldntCreateManagedObject
+            }
+        } else {
+            throw StormcloudTestError.InvalidContext
+        }
+        
+    }
+    
     func insertDropWithType(type : RaindropType, cloud : Cloud ) throws -> Raindrop {
         if let context = self.stack.managedObjectContext {
             do {
@@ -56,7 +74,8 @@ class StormcloudCoreDataTests: StormcloudTestsBaseClass {
         }
     }
     
-
+    
+    
     func setupStack() {
         let expectation = expectationWithDescription("Stack Setup")
         stack.setupStore { () -> Void in
@@ -68,15 +87,40 @@ class StormcloudCoreDataTests: StormcloudTestsBaseClass {
         
     }
     
-    func addObjectsWithNumber(number : Int) {
+    func addTags() -> [Tag] {
+        print("Adding tags")
+        
+        var tags : [Tag] = []
+        do {
+            let tag1 = try self.insertTagWithName("Wet")
+            let tag2 = try self.insertTagWithName("Windy")
+            let tag3 = try self.insertTagWithName("Dark")
+            let tag4 = try self.insertTagWithName("Thundery")
+            
+            tags.append(tag1)
+            tags.append(tag2)
+            tags.append(tag3)
+            tags.append(tag4)
+        } catch {
+            XCTFail("Failed to insert tags")
+        }
+        return tags
+    }
+    
+    func addObjectsWithNumber(number : Int, tags : [Tag] = []) {
         let cloud : Cloud
         do {
             cloud = try self.insertCloudWithNumber(number)
             _ = try? self.insertDropWithType(RaindropType.Heavy, cloud: cloud)
             _ = try? self.insertDropWithType(RaindropType.Light, cloud: cloud)
+
+            if tags.count > 0 {
+                cloud.tags = NSSet(array: tags)
+            }
         } catch {
             XCTFail("Failed to create data")
         }
+        
     }
     
     func backupCoreData() {
@@ -86,6 +130,7 @@ class StormcloudCoreDataTests: StormcloudTestsBaseClass {
         }
         let expectation = expectationWithDescription("Insert expectation")
         
+        self.stack.save()
         manager.backupCoreDataEntities(inContext: context) { (error, metadata) -> () in
             if let _ = error {
                 XCTFail("Failed to back up Core Data entites")
@@ -111,8 +156,12 @@ class StormcloudCoreDataTests: StormcloudTestsBaseClass {
     func testThatBackingUpCoreDataCreatesCorrectFormat() {
 
         self.setupStack()
-        self.addObjectsWithNumber(1)
-        self.addObjectsWithNumber(2)
+        let tags = self.addTags()
+        
+        for var i = 1; i <= totalClouds; i++ {
+            self.addObjectsWithNumber(i, tags:  tags)
+        }
+        
         self.backupCoreData()
         
         let items = self.listItemsAtURL()
@@ -134,7 +183,9 @@ class StormcloudCoreDataTests: StormcloudTestsBaseClass {
             XCTFail("Couldn't read data")
         }
         
-        XCTAssertEqual(jsonObjects.count, 6)
+        print(jsonObjects)
+        
+        XCTAssertEqual(jsonObjects.count, (totalRaindrops * totalClouds) + totalClouds + totalTags)
         
         if let objects = jsonObjects as? [String : AnyObject]  {
 
@@ -147,16 +198,24 @@ class StormcloudCoreDataTests: StormcloudTestsBaseClass {
                         XCTAssertNotNil(isDict["order"])
                         XCTAssertNotNil(isDict["added"])
                         
-                        if let name = isDict["name"] as? String {
+                        if let name = isDict["name"] as? String where name == "Cloud 1" {
 
                             if let _ = isDict["didRain"] as? Int {
-                                XCTAssertEqual(name, "Cloud 2")
+                                XCTFail("Cloud 1's didRain property should be nil")
                             } else {
                                 XCTAssertEqual(name, "Cloud 1")
                             }
                             
-                        } else {
-                            XCTFail("Name poperty doesn't exist")
+                        }
+                        
+                        if let name = isDict["name"] as? String where name == "Cloud 2" {
+                            
+                            if let _ = isDict["didRain"] as? Int {
+                                XCTAssertEqual(name, "Cloud 2")
+                            } else {
+                                XCTFail("Cloud 1's didRain property should be set")
+                            }
+                            
                         }
                         
                         if let value = isDict["chanceOfRain"] as? Float {
@@ -229,8 +288,9 @@ class StormcloudCoreDataTests: StormcloudTestsBaseClass {
         // Keep a copy of all the data and make sure it's the same when it gets back in to the DB
         
         self.setupStack()
-        self.addObjectsWithNumber(1)
-        self.addObjectsWithNumber(2)
+        let tags = self.addTags()
+        self.addObjectsWithNumber(1, tags:  tags)
+        self.addObjectsWithNumber(2, tags:  tags)
         self.backupCoreData()
         
         let items = self.listItemsAtURL()
@@ -249,8 +309,6 @@ class StormcloudCoreDataTests: StormcloudTestsBaseClass {
         
         waitForExpectationsWithTimeout(10.0, handler: nil)
         
-        
-        
         if let context = self.stack.managedObjectContext {
             
             let request = NSFetchRequest(entityName: "Cloud")
@@ -266,7 +324,8 @@ class StormcloudCoreDataTests: StormcloudTestsBaseClass {
             
             if clouds.count > 1  {
                 let cloud1 = clouds[0]
-                XCTAssertEqual(cloud1.raindrops?.count, 2)
+                XCTAssertEqual(cloud1.tags?.count, totalTags)
+                XCTAssertEqual(cloud1.raindrops?.count, totalRaindrops)
                 XCTAssertEqual(cloud1.name, "Cloud 1")
                 XCTAssertEqual(cloud1.chanceOfRain, Float(0.45))
                 XCTAssertNil(cloud1.didRain)
@@ -279,9 +338,9 @@ class StormcloudCoreDataTests: StormcloudTestsBaseClass {
                 
                 
                 let cloud2 = clouds[1]
-                
+                XCTAssertEqual(cloud2.tags?.count, totalTags)
                 if let raindrops = cloud2.raindrops?.allObjects {
-                    XCTAssertEqual(raindrops.count, 2)
+                    XCTAssertEqual(raindrops.count, totalRaindrops)
                 }
                 
                 XCTAssertEqual(cloud2.name, "Cloud 2")

@@ -18,6 +18,8 @@ class TagsTableViewController: StormcloudFetchedResultsController {
     override func viewDidLoad() {
 
 
+        
+        
         let request = NSFetchRequest(entityName: "Tag")
         request.sortDescriptors = [NSSortDescriptor(key: "name", ascending: true)]
         
@@ -27,7 +29,12 @@ class TagsTableViewController: StormcloudFetchedResultsController {
             if let cell = tableView.dequeueReusableCellWithIdentifier("TagCell") {
                 cell.textLabel?.text = object.valueForKey("name") as? String
                 
+                if let isTag = object as? Tag {
+                    cell.detailTextLabel?.text = "Clouds \(isTag.clouds!.count)"
+                }
+                
                 cell.accessoryType = ( self.checkTag(object) ) ? .Checkmark : .None
+                
                 
                 return cell
             }
@@ -54,6 +61,22 @@ class TagsTableViewController: StormcloudFetchedResultsController {
 
 }
 
+extension NSManagedObject {
+    func addObject(value: NSManagedObject, forKey: String) {
+        self.willChangeValueForKey(forKey, withSetMutation: NSKeyValueSetMutationKind.UnionSetMutation, usingObjects: NSSet(object: value) as Set<NSObject>)
+        let items = self.mutableSetValueForKey(forKey)
+        items.addObject(value)
+        self.didChangeValueForKey(forKey, withSetMutation: NSKeyValueSetMutationKind.UnionSetMutation, usingObjects: NSSet(object: value) as Set<NSObject>)
+    }
+    
+    func removeObject(value: NSManagedObject, forKey: String) {
+        self.willChangeValueForKey(forKey, withSetMutation: NSKeyValueSetMutationKind.UnionSetMutation, usingObjects: NSSet(object: value) as Set<NSObject>)
+        let items = self.mutableSetValueForKey(forKey)
+        items.removeObject(value)
+        self.didChangeValueForKey(forKey, withSetMutation: NSKeyValueSetMutationKind.UnionSetMutation, usingObjects: NSSet(object: value) as Set<NSObject>)
+    }
+}
+
 extension TagsTableViewController {
     
     func checkTag( tag : NSManagedObject ) -> Bool {
@@ -70,15 +93,18 @@ extension TagsTableViewController {
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         if let tag = self.frc?.objectAtIndexPath(indexPath) as? Tag {
 
-            if let tags = self.cloud.valueForKeyPath("tags") as? NSMutableSet {
+    
+            
+            if let tags = self.cloud.tags {
                 if tags.containsObject(tag) {
-                    tags.removeObject(tag)
+                    self.cloud.removeObject(tag, forKey: "tags")
                 } else {
-                    tags.addObject(tag)
+                    self.cloud.addObject(tag, forKey: "tags")
                 }
             }
+
         }
-        self.tableView.reloadRowsAtIndexPaths([indexPath], withRowAnimation: .None)
+
         self.tableView.deselectRowAtIndexPath(indexPath, animated: true)
     }
 }
