@@ -287,3 +287,15 @@ extension CloudDetailViewController : StormcloudFetchedResultsControllerDetailVC
     }
     
 }
+
+// MARK: - Segue
+
+extension CloudDetailViewController {
+    
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        if let tagsVC = segue.destinationViewController as? TagsTableViewController {
+            tagsVC.cloud = self.currentCloud
+        }
+    }
+}
+

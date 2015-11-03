@@ -1,5 +1,5 @@
 //
-//  Cloud+CoreDataProperties.swift
+//  Tag+CoreDataProperties.swift
 //  Stormcloud
 //
 //  Created by Simon Fairbairn on 02/11/2015.
@@ -12,14 +12,9 @@
 import Foundation
 import CoreData
 
-extension Cloud {
+extension Tag {
 
-    @NSManaged var added: NSDate?
-    @NSManaged var chanceOfRain: NSNumber?
-    @NSManaged var didRain: NSNumber?
     @NSManaged var name: String?
-    @NSManaged var order: NSNumber?
-    @NSManaged var raindrops: NSSet?
-    @NSManaged var tags: NSSet?
+    @NSManaged var clouds: NSSet?
 
 }

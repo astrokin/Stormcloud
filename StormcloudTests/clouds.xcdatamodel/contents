@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="8195" systemVersion="15A284" minimumToolsVersion="Xcode 7.0">
+<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="9057" systemVersion="15B42" minimumToolsVersion="Xcode 7.0">
     <entity name="Cloud" representedClassName="Cloud" syncable="YES">
         <attribute name="added" optional="YES" attributeType="Date" syncable="YES"/>
         <attribute name="chanceOfRain" optional="YES" attributeType="Float" defaultValueString="0.0" syncable="YES"/>
@@ -7,6 +7,7 @@
         <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="order" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
         <relationship name="raindrops" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Raindrop" inverseName="cloud" inverseEntity="Raindrop" syncable="YES"/>
+        <relationship name="tags" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Tag" inverseName="clouds" inverseEntity="Tag" syncable="YES"/>
     </entity>
     <entity name="Raindrop" representedClassName="Raindrop" syncable="YES">
         <attribute name="colour" optional="YES" attributeType="Transformable" syncable="YES"/>
@@ -15,9 +16,14 @@
         <attribute name="type" optional="YES" attributeType="String" syncable="YES"/>
         <relationship name="cloud" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Cloud" inverseName="raindrops" inverseEntity="Cloud" syncable="YES"/>
     </entity>
+    <entity name="Tag" representedClassName=".Tag" syncable="YES">
+        <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="clouds" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Cloud" inverseName="tags" inverseEntity="Cloud" syncable="YES"/>
+    </entity>
     <fetchRequest name="CloudFetch" entity="Cloud" predicateString="didRain == 0 OR didRain == 1"/>
     <elements>
-        <element name="Cloud" positionX="-63" positionY="-18" width="128" height="135"/>
-        <element name="Raindrop" positionX="-281" positionY="-9" width="128" height="120"/>
+        <element name="Cloud" positionX="-576" positionY="-9" width="128" height="148"/>
+        <element name="Raindrop" positionX="-353" positionY="24" width="128" height="120"/>
+        <element name="Tag" positionX="-810" positionY="54" width="128" height="73"/>
     </elements>
 </model>

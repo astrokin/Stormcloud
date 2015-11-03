@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F43811941BE77A1E0030D9FD /* Tag+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = F43811921BE77A1E0030D9FD /* Tag+CoreDataProperties.swift */; };
+		F43811951BE77A1E0030D9FD /* Tag.swift in Sources */ = {isa = PBXBuildFile; fileRef = F43811931BE77A1E0030D9FD /* Tag.swift */; };
 		F48421211BDCBB8900C98567 /* Stormcloud.podspec in Resources */ = {isa = PBXBuildFile; fileRef = F48421201BDCBB8900C98567 /* Stormcloud.podspec */; };
 		F48421821BDCD62400C98567 /* StormcloudDefaultsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48421811BDCD62400C98567 /* StormcloudDefaultsManager.swift */; };
 		F4E2E9531BDCC8AF00A63FAF /* Stormcloud.h in Headers */ = {isa = PBXBuildFile; fileRef = F4E2E9521BDCC8AF00A63FAF /* Stormcloud.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -44,6 +46,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		F43811921BE77A1E0030D9FD /* Tag+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Tag+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		F43811931BE77A1E0030D9FD /* Tag.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Tag.swift; sourceTree = "<group>"; };
 		F48421201BDCBB8900C98567 /* Stormcloud.podspec */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Stormcloud.podspec; sourceTree = "<group>"; };
 		F48421811BDCD62400C98567 /* StormcloudDefaultsManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StormcloudDefaultsManager.swift; sourceTree = "<group>"; };
 		F4E2E94F1BDCC8AF00A63FAF /* Stormcloud.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Stormcloud.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -101,6 +105,8 @@
 		F484212A1BDCD34300C98567 /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				F43811921BE77A1E0030D9FD /* Tag+CoreDataProperties.swift */,
+				F43811931BE77A1E0030D9FD /* Tag.swift */,
 				F4E2E97A1BDCC8AF00A63FAF /* StormcloudTestsCoreDataStack.swift */,
 				F4E2E97B1BDCC8AF00A63FAF /* Cloud.swift */,
 				F4E2E97C1BDCC8AF00A63FAF /* Cloud+CoreDataProperties.swift */,
@@ -287,6 +293,7 @@
 				F4E2E9831BDCC8AF00A63FAF /* StormcloudCoreDataTests.swift in Sources */,
 				F4E2E9871BDCC8AF00A63FAF /* Cloud.swift in Sources */,
 				F4E2E9881BDCC8AF00A63FAF /* Cloud+CoreDataProperties.swift in Sources */,
+				F43811941BE77A1E0030D9FD /* Tag+CoreDataProperties.swift in Sources */,
 				F4E2E98B1BDCC8AF00A63FAF /* Raindrop+CoreDataProperties.swift in Sources */,
 				F4E2E9841BDCC8AF00A63FAF /* StormcloudTests.swift in Sources */,
 				F4E2E98E1BDCC8AF00A63FAF /* StormcloudDocument.swift in Sources */,
@@ -294,6 +301,7 @@
 				F4E2E9861BDCC8AF00A63FAF /* StormcloudTestsCoreDataStack.swift in Sources */,
 				F4E2E98D1BDCC8AF00A63FAF /* Stormcloud.swift in Sources */,
 				F4E2E9851BDCC8AF00A63FAF /* StormcloudTestsBaseClass.swift in Sources */,
+				F43811951BE77A1E0030D9FD /* Tag.swift in Sources */,
 				F4E2E9901BDCC8AF00A63FAF /* Error.swift in Sources */,
 				F4E2E98A1BDCC8AF00A63FAF /* Raindrop.swift in Sources */,
 			);

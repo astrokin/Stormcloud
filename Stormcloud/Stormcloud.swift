@@ -49,6 +49,7 @@ enum StormcloudEnvironment : String, StormcloudEnvironmentVariable {
 
 enum StormcloudEntityKeys : String {
     case EntityType = "com.voyagetravelapps.Stormcloud.entityType"
+    case ManagedObject = "com.voyagetravelapps.Stormcloud.managedObject"
 }
 
 // Keys for NSUSserDefaults that manage iCloud state
@@ -106,6 +107,8 @@ public class Stormcloud: NSObject {
     var moveDocsToiCloudCompletion : ((error : StormcloudError?) -> Void)?
 
     var operationInProgress : Bool = false
+    
+    var workingCache : [String : AnyObject] = [:]
     
     public override init() {
         super.init()
@@ -254,24 +257,9 @@ public class Stormcloud: NSObject {
     
 }
 
-// MARK: - Handle backup and restore
+// MARK: - Backup
 
 extension Stormcloud {
-    
-    /**
-     Gets the URL for a given StormcloudMetadata item. Will return either the local or iCloud URL.
-     
-     - parameter item: The item to get the URL for
-     
-     - returns: An optional NSURL, giving the location for the item
-     */
-    public func urlForItem(item : StormcloudMetadata) -> NSURL? {
-        if self.isUsingiCloud {
-            return self.iCloudDocumentsDirectory()?.URLByAppendingPathComponent(item.filename)
-        } else {
-            return self.documentsDirectory()?.URLByAppendingPathComponent(item.filename)
-        }
-    }
     
     /**
      Backups the passed JSON objects to iCloud. Will also run a check to ensure that the objects are valid JSON, returning an error in the completion handler if there's a problem.
@@ -280,6 +268,8 @@ extension Stormcloud {
      - parameter completion: A completion block that returns the new metadata if the backup was successful and a new document was created
      */
     public func backupObjectsToJSON( objects : AnyObject, completion : (error : StormcloudError?, metadata : StormcloudMetadata?) -> () ) {
+        
+        self.stormcloudLog("\(__FUNCTION__)")
         
         if self.operationInProgress {
             completion(error: .BackupInProgress, metadata: nil)
@@ -318,6 +308,8 @@ extension Stormcloud {
             let finalURL = baseURL.URLByAppendingPathComponent(metadata.filename)
             
             let document = BackupDocument(fileURL: finalURL)
+            
+            self.stormcloudLog("Backing up to: \(finalURL)")
             
             document.objectsToBackup = objects
             
@@ -372,42 +364,6 @@ extension Stormcloud {
         }
     }
     
-    /**
-     Restores a JSON object from the given Stormcloud Metadata object
-     
-     - parameter metadata:        The Stormcloud metadata object that represents the document
-     - parameter completion:      A completion handler to run when the operation is completed
-     */
-    public func restoreBackup(withMetadata metadata : StormcloudMetadata, completion : (error: StormcloudError?, restoredObjects : AnyObject? ) -> () ) {
-
-        if self.operationInProgress {
-            completion(error: .BackupInProgress, restoredObjects:  nil)
-            return
-        }
-        self.operationInProgress = true
-        
-        if let url = self.urlForItem(metadata) {
-            let document = BackupDocument(fileURL : url)
-            document.openWithCompletionHandler({ (success) -> Void in
-                
-                if !success {
-                    self.operationInProgress = false
-                    completion(error: .CouldntOpenDocument, restoredObjects:  nil)
-                    return
-                }
-                
-                dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                    self.operationInProgress = false
-                    completion(error: nil, restoredObjects: document.objectsToBackup)
-                })
-            })
-        } else {
-            self.operationInProgress = false
-            completion(error: .InvalidURL, restoredObjects:  nil)
-        }
-    }
-    
-    
     public func backupCoreDataEntities( inContext context : NSManagedObjectContext, completion : ( error : StormcloudError?, metadata : StormcloudMetadata?) -> () ) {
         
         self.stormcloudLog("Beginning backup of Core Data with context : \(context)")
@@ -446,6 +402,7 @@ extension Stormcloud {
                         
                         for object in allObjects {
                             let uriRepresentation = object.objectID.URIRepresentation().absoluteString
+                            
                             
                             var internalDictionary : [String : AnyObject] = [StormcloudEntityKeys.EntityType.rawValue : entityName]
                             
@@ -494,6 +451,312 @@ extension Stormcloud {
         }
     }
     
+}
+
+
+// MARK: - Core Data Methods
+
+extension Stormcloud {
+    func insertObjectsWithContext( context : NSManagedObjectContext, data : [String : AnyObject], completion : (success : Bool) -> ()  ) {
+        
+        stormcloudLog("\(__FUNCTION__)")
+        
+        let privateContext = NSManagedObjectContext(concurrencyType: .PrivateQueueConcurrencyType)
+        privateContext.parentContext = context
+        privateContext.performBlock { () -> Void in
+
+            self.formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZZZ"
+            
+            var success = true
+            
+            // First we get all the objects
+            // Then we delete them all!
+            if let entities = privateContext.persistentStoreCoordinator?.managedObjectModel.entities {
+
+                self.stormcloudLog("Found \(entities.count) entities:")
+                
+                for entity in entities {
+                    if let entityName = entity.name {
+
+                        self.stormcloudLog("\t\(entityName)")
+                        
+                        let request = NSFetchRequest(entityName: entityName)
+                        
+                        let allObjects : [NSManagedObject]
+                        do {
+                            allObjects = try privateContext.executeFetchRequest(request) as! [NSManagedObject]
+                        } catch {
+                            allObjects = []
+                        }
+                        
+                        for object in allObjects {
+                            privateContext.deleteObject(object)
+                        }
+                    }
+                }
+                
+                // Push the changes to the store
+                do {
+                    try privateContext.save()
+                } catch {
+                    success = false
+                    self.stormcloudLog("Error saving context")
+                    abort()
+                }
+                
+                context.performBlockAndWait({ () -> Void in
+                    do {
+                        try context.save()
+                    } catch {
+                        success = false
+                        self.stormcloudLog("Error saving parent context")
+                        abort()
+                    }
+                })
+                
+                var allObjects : [NSManagedObject] = []
+                
+                for (key, value) in data {
+                    
+                    if var dict = value as? [ String : AnyObject], let entityName = dict[StormcloudEntityKeys.EntityType.rawValue] as? String {
+                        self.stormcloudLog("\tCreating entity \(entityName)")
+                        
+                        // At this point it will have a temporary ID
+                        let object = NSEntityDescription.insertNewObjectForEntityForName(entityName, inManagedObjectContext: privateContext)
+                        
+                        dict[StormcloudEntityKeys.ManagedObject.rawValue] = object
+                        
+                        self.workingCache[key] = dict
+                        
+                        allObjects.append(object)
+                        
+                        for (propertyName, propertyValue ) in dict {
+                            for propertyDescription in object.entity.properties {
+                                if let attribute = propertyDescription as? NSAttributeDescription where propertyName == propertyDescription.name {
+                                    
+                                    self.stormcloudLog("\t\tFound attribute: \(propertyName)")
+                                    
+                                    self.setAttribute(attribute, onObject: object, withData: propertyValue)
+                                }
+                            }
+                        }
+                    }
+                }
+
+                self.stormcloudLog("\tAttempting to obtain permanent IDs...")
+                do {
+                    try privateContext.obtainPermanentIDsForObjects(allObjects)
+                    self.stormcloudLog("\t\tSuccess")
+                } catch {
+                    self.stormcloudLog("\t\tCouldn't obtain permanent IDs")
+                }
+                
+                if StormcloudEnvironment.VerboseLogging.isEnabled() {
+                    
+                    for object in allObjects {
+                        self.stormcloudLog("\t\tNew ID: \(object.objectID.temporaryID)")
+                        self.stormcloudLog("\t\t\tNew ID: \(object.objectID)")
+                    }
+                    
+                }
+                
+                do {
+                    try privateContext.save()
+                } catch {
+                    // TODO : Better error handling
+                    self.stormcloudLog("Error saving during restore")
+                }
+                
+                context.performBlockAndWait({ () -> Void in
+                    do {
+                        try context.save()
+                    } catch {
+                        // TODO : Better error handling
+                        self.stormcloudLog("Error saving parent context")
+                    }
+                })
+                
+                
+                // An array of managed objects, whose object IDs are now no good. 
+                // A dictionary of the data, with one of the keys pointing to a managed object
+                
+                for (_, value) in self.workingCache {
+                    if let dict = value as? [String : AnyObject], object = dict[StormcloudEntityKeys.ManagedObject.rawValue] as? NSManagedObject {
+                        for propertyDescription in object.entity.properties {
+                            if let relationship = propertyDescription as? NSRelationshipDescription {
+                                self.setRelationship(relationship, onObject: object, withData : dict, inContext: privateContext)
+                            }
+                        }
+                        
+                    }
+                }
+                
+                do {
+                    try privateContext.save()
+                } catch {
+                    abort()
+                }
+                
+                dispatch_async(dispatch_get_main_queue()) { () -> Void in
+                    completion(success: success)
+                }
+                
+            }
+        }
+    }
+    
+    func setRelationship( relationship : NSRelationshipDescription, onObject : NSManagedObject, withData data: [ String : AnyObject], inContext : NSManagedObjectContext ) {
+        
+        if let relationshipIDs = data[relationship.name] as? [String] {
+            var setObjects : [NSManagedObject] = []
+            for id in relationshipIDs {
+                
+                
+                
+                if let cacheData = self.workingCache[id] as? [String : AnyObject], relatedObject = cacheData[StormcloudEntityKeys.ManagedObject.rawValue] as? NSManagedObject {
+                    if !relationship.toMany {
+                        self.stormcloudLog("\tRestoring To-one relationship \(relationship.name)")
+                        onObject.setValue(relatedObject, forKey: relationship.name)
+                    } else {
+                        setObjects.append(relatedObject)
+                    }
+                    
+                }                
+//                
+//                if let url = NSURL(string: id), objectID = inContext.persistentStoreCoordinator?.managedObjectIDForURIRepresentation(url) {
+//                    let relatedObject = inContext.objectWithID(objectID)
+//
+//                }
+            }
+            if relationship.toMany {
+                self.stormcloudLog("\tRestoring To-many relationship \(onObject.entity.name) ->> \(relationship.name) with \(setObjects.count) objects")
+                if relationship.ordered {
+                    
+                    let set = NSOrderedSet(array: setObjects)
+                    onObject.setValue(set, forKey: relationship.name)
+                    
+                } else {
+                    let set = NSSet(array: setObjects)
+                    onObject.setValue(set, forKey: relationship.name)
+                }
+                
+            }
+        }
+    }
+    
+    
+    func getAttribute( attribute : NSAttributeDescription, fromObject object : NSManagedObject ) -> AnyObject? {
+        
+        switch attribute.attributeType {
+        case .Integer16AttributeType, .Integer32AttributeType,.Integer64AttributeType, .DoubleAttributeType, .FloatAttributeType, .StringAttributeType, .BooleanAttributeType :
+            
+            return object.valueForKey(attribute.name)
+            
+            
+        case .DecimalAttributeType:
+            
+            if let decimal = object.valueForKey(attribute.name) as? NSDecimalNumber {
+                return decimal.stringValue
+            }
+        case .DateAttributeType:
+            if let date = object.valueForKey(attribute.name) as? NSDate {
+                return formatter.stringFromDate(date)
+            }
+        case .BinaryDataAttributeType, .TransformableAttributeType:
+            if let value = object.valueForKey(attribute.name) as? NSCoding {
+                let mutableData = NSMutableData()
+                let archiver = NSKeyedArchiver(forWritingWithMutableData: mutableData)
+                archiver.encodeObject(value, forKey: attribute.name)
+                archiver.finishEncoding()
+                return mutableData.base64EncodedStringWithOptions(NSDataBase64EncodingOptions())
+            }
+        case .ObjectIDAttributeType, .UndefinedAttributeType:
+            break
+            
+        }
+        
+        
+        return nil
+    }
+    
+    
+    func setAttribute( attribute : NSAttributeDescription, onObject object : NSManagedObject,  withData data : AnyObject? ) {
+        switch attribute.attributeType {
+        case .Integer16AttributeType, .Integer32AttributeType,.Integer64AttributeType, .DoubleAttributeType, .FloatAttributeType:
+            if let val = data as? NSNumber {
+                object.setValue(val, forKey: attribute.name)
+            } else {
+                stormcloudLog("Setting Number : \(data) not Number")
+            }
+            
+        case .DecimalAttributeType:
+            if let val = data as? String {
+                let decimal = NSDecimalNumber(string: val)
+                object.setValue(decimal, forKey: attribute.name)
+            } else {
+                stormcloudLog("Setting Decimal : \(data) not String")
+            }
+            
+        case .StringAttributeType:
+            if let val = data as? String {
+                object.setValue(val, forKey: attribute.name)
+            } else {
+                stormcloudLog("Setting String : \(data) not String")
+            }
+        case .BooleanAttributeType:
+            if let val = data as? NSNumber {
+                object.setValue(val.boolValue, forKey: attribute.name)
+            } else {
+                stormcloudLog("Setting Bool : \(data) not Number")
+            }
+        case .DateAttributeType:
+            if let val = data as? String, date = self.formatter.dateFromString(val) {
+                object.setValue(date, forKey: attribute.name)
+            }
+        case .BinaryDataAttributeType, .TransformableAttributeType:
+            if let val = data as? String {
+                let data = NSData(base64EncodedString: val, options: NSDataBase64DecodingOptions())
+                let unarchiver = NSKeyedUnarchiver(forReadingWithData: data!)
+                if let data = unarchiver.decodeObjectForKey(attribute.name) as? NSObject {
+                    object.setValue(data, forKey: attribute.name)
+                }
+                unarchiver.finishDecoding()
+            } else {
+                stormcloudLog("Transformable/Binary type : \(data) not String")
+            }
+        case .ObjectIDAttributeType, .UndefinedAttributeType:
+            break
+            
+        }
+    }
+    
+    
+}
+
+// MARK: - Helper methods
+
+extension Stormcloud {
+    /**
+     Gets the URL for a given StormcloudMetadata item. Will return either the local or iCloud URL.
+     
+     - parameter item: The item to get the URL for
+     
+     - returns: An optional NSURL, giving the location for the item
+     */
+    public func urlForItem(item : StormcloudMetadata) -> NSURL? {
+        if self.isUsingiCloud {
+            return self.iCloudDocumentsDirectory()?.URLByAppendingPathComponent(item.filename)
+        } else {
+            return self.documentsDirectory()?.URLByAppendingPathComponent(item.filename)
+        }
+    }
+}
+
+
+// MARK: - Restoring
+
+extension Stormcloud {
+
     func mergeCoreDataBackup(withMetadata metadata : StormcloudMetadata, toContext context : NSManagedObjectContext, completion : (success : Bool ) -> () ) {
         
         
@@ -513,6 +776,42 @@ extension Stormcloud {
         }
     }
     
+    
+    
+    /**
+     Restores a JSON object from the given Stormcloud Metadata object
+     
+     - parameter metadata:        The Stormcloud metadata object that represents the document
+     - parameter completion:      A completion handler to run when the operation is completed
+     */
+    public func restoreBackup(withMetadata metadata : StormcloudMetadata, completion : (error: StormcloudError?, restoredObjects : AnyObject? ) -> () ) {
+        
+        if self.operationInProgress {
+            completion(error: .BackupInProgress, restoredObjects:  nil)
+            return
+        }
+        self.operationInProgress = true
+        
+        if let url = self.urlForItem(metadata) {
+            let document = BackupDocument(fileURL : url)
+            document.openWithCompletionHandler({ (success) -> Void in
+                
+                if !success {
+                    self.operationInProgress = false
+                    completion(error: .CouldntOpenDocument, restoredObjects:  nil)
+                    return
+                }
+                
+                dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                    self.operationInProgress = false
+                    completion(error: nil, restoredObjects: document.objectsToBackup)
+                })
+            })
+        } else {
+            self.operationInProgress = false
+            completion(error: .InvalidURL, restoredObjects:  nil)
+        }
+    }
     
     /**
      Restores a backup to Core Data from a UIManagedDocument
@@ -575,235 +874,6 @@ extension Stormcloud {
         } else {
             self.operationInProgress = false
             completion(error: .InvalidURL)
-        }
-    }
-    
-    func insertObjectsWithContext( context : NSManagedObjectContext, data : [String : AnyObject], completion : (success : Bool) -> ()  ) {
-        
-        let privateContext = NSManagedObjectContext(concurrencyType: .PrivateQueueConcurrencyType)
-        privateContext.parentContext = context
-        privateContext.performBlock { () -> Void in
-            
-            self.formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZZZ"
-            
-            var success = true
-            // First we get all the objects
-            // Then we delete them all!
-            
-            if let entities = privateContext.persistentStoreCoordinator?.managedObjectModel.entities {
-                
-                
-                for entity in entities {
-                    if let entityName = entity.name {
-                        let request = NSFetchRequest(entityName: entityName)
-                        
-                        let allObjects : [NSManagedObject]
-                        do {
-                            allObjects = try privateContext.executeFetchRequest(request) as! [NSManagedObject]
-                        } catch {
-                            allObjects = []
-                        }
-                        
-                        for object in allObjects {
-                            privateContext.deleteObject(object)
-                        }
-                    }
-                }
-                
-                do {
-                    try privateContext.save()
-                } catch {
-                    success = false
-                    abort()
-                }
-                
-                var allObjects : [NSManagedObject] = []
-                
-                var testObject : NSManagedObject?
-                
-                for (key, value) in data {
-                    if let url = NSURL(string: key), objectID = privateContext.persistentStoreCoordinator?.managedObjectIDForURIRepresentation(url) {
-                        let object = privateContext.objectWithID(objectID)
-                        privateContext.insertObject(object)
-
-                        
-                        // TESTING
-                        if let _ = testObject {
-                            
-                        } else {
-                            testObject = object
-                            self.stormcloudLog("Test object has id: \(testObject!.objectID.URIRepresentation().absoluteString)")
-                        }
-                        
-                        
-                        
-
-                        
-                        allObjects.append(object)
-                        
-                        if let dict = value as? [String : AnyObject] {
-                            for (propertyName, propertyValue ) in dict {
-                                for propertyDescription in object.entity.properties {
-                                    if let attribute = propertyDescription as? NSAttributeDescription where propertyName == propertyDescription.name {
-                                        self.setAttribute(attribute, onObject: object, withData: propertyValue)
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                do {
-                    try privateContext.save()
-                } catch {
-                    // TODO : Better error handling
-                    self.stormcloudLog("Error saving during restore")
-                }
-                
-                if let _ = testObject {
-                    self.stormcloudLog("After save: \(testObject!.objectID.URIRepresentation().absoluteString)")
-                }
-                
-                for object in allObjects {
-                    if let relationshipData = data[object.objectID.URIRepresentation().absoluteString] as? [String : AnyObject] {
-
-                        for propertyDescription in object.entity.properties {
-                            if let relationship = propertyDescription as? NSRelationshipDescription {
-                                self.setRelationship(relationship, onObject: object, withData : relationshipData, inContext: privateContext)
-                            }
-                        }
-                        
-                    }
-                }
-                
-                do {
-                    try privateContext.save()
-                } catch {
-                    abort()
-                }
-                
-                dispatch_async(dispatch_get_main_queue()) { () -> Void in
-                    completion(success: success)
-                }
-                
-            }
-        }
-    }
-    
-    func setRelationship( relationship : NSRelationshipDescription, onObject : NSManagedObject, withData data: [ String : AnyObject], inContext : NSManagedObjectContext ) {
-        
-        if let relationshipIDs = data[relationship.name] as? [String] {
-                var setObjects : [NSManagedObject] = []
-            for id in relationshipIDs {
-
-                
-                if let url = NSURL(string: id), objectID = inContext.persistentStoreCoordinator?.managedObjectIDForURIRepresentation(url) {
-                    let relatedObject = inContext.objectWithID(objectID)
-                    if !relationship.toMany {
-                        onObject.setValue(relatedObject, forKey: relationship.name)
-                    } else {
-                        setObjects.append(relatedObject)
-                    }
-                }
-            }
-            if relationship.toMany {
-                if relationship.ordered {
-                    let set = NSOrderedSet(array: setObjects)
-                    onObject.setValue(set, forKey: relationship.name)
-                    
-                } else {
-                    let set = NSSet(array: setObjects)
-                    onObject.setValue(set, forKey: relationship.name)
-                    let name = onObject.valueForKey("name")
-                    stormcloudLog("Added \(setObjects.count) objects to \(name)")
-                }
-
-            }
-        }
-    }
-    
-    
-    func getAttribute( attribute : NSAttributeDescription, fromObject object : NSManagedObject ) -> AnyObject? {
-        
-        switch attribute.attributeType {
-        case .Integer16AttributeType, .Integer32AttributeType,.Integer64AttributeType, .DoubleAttributeType, .FloatAttributeType, .StringAttributeType, .BooleanAttributeType :
-
-            return object.valueForKey(attribute.name)
-
-            
-        case .DecimalAttributeType:
-            
-            if let decimal = object.valueForKey(attribute.name) as? NSDecimalNumber {
-                return decimal.stringValue
-            }
-        case .DateAttributeType:
-            if let date = object.valueForKey(attribute.name) as? NSDate {
-                return formatter.stringFromDate(date)
-            }
-        case .BinaryDataAttributeType, .TransformableAttributeType:
-            if let value = object.valueForKey(attribute.name) as? NSCoding {
-                let mutableData = NSMutableData()
-                let archiver = NSKeyedArchiver(forWritingWithMutableData: mutableData)
-                archiver.encodeObject(value, forKey: attribute.name)
-                archiver.finishEncoding()
-                return mutableData.base64EncodedStringWithOptions(NSDataBase64EncodingOptions())
-            }
-        case .ObjectIDAttributeType, .UndefinedAttributeType:
-            break
-            
-        }
-        
-
-        return nil
-    }
-    
-    
-    func setAttribute( attribute : NSAttributeDescription, onObject object : NSManagedObject,  withData data : AnyObject? ) {
-        switch attribute.attributeType {
-        case .Integer16AttributeType, .Integer32AttributeType,.Integer64AttributeType, .DoubleAttributeType, .FloatAttributeType:
-            if let val = data as? NSNumber {
-                object.setValue(val, forKey: attribute.name)
-            } else {
-                stormcloudLog("Setting Number : \(data) not Number")
-            }
-            
-        case .DecimalAttributeType:
-            if let val = data as? String {
-                let decimal = NSDecimalNumber(string: val)
-                object.setValue(decimal, forKey: attribute.name)
-            } else {
-                stormcloudLog("Setting Decimal : \(data) not String")
-            }
-            
-        case .StringAttributeType:
-            if let val = data as? String {
-                object.setValue(val, forKey: attribute.name)
-            } else {
-                stormcloudLog("Setting String : \(data) not String")
-            }
-        case .BooleanAttributeType:
-            if let val = data as? NSNumber {
-                object.setValue(val.boolValue, forKey: attribute.name)
-            } else {
-                stormcloudLog("Setting Bool : \(data) not Number")
-            }
-        case .DateAttributeType:
-            if let val = data as? String, date = self.formatter.dateFromString(val) {
-                object.setValue(date, forKey: attribute.name)
-            }
-        case .BinaryDataAttributeType, .TransformableAttributeType:
-            if let val = data as? String {
-                let data = NSData(base64EncodedString: val, options: NSDataBase64DecodingOptions())
-                let unarchiver = NSKeyedUnarchiver(forReadingWithData: data!)
-                if let data = unarchiver.decodeObjectForKey(attribute.name) as? NSObject {
-                    object.setValue(data, forKey: attribute.name)
-                }
-                unarchiver.finishDecoding()
-            } else {
-                stormcloudLog("Transformable/Binary type : \(data) not String")
-            }
-        case .ObjectIDAttributeType, .UndefinedAttributeType:
-            break
-            
         }
     }
     

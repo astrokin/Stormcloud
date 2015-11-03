@@ -119,26 +119,32 @@ extension StormcloudFetchedResultsController : NSFetchedResultsControllerDelegat
     }
     
     public func controller(controller: NSFetchedResultsController, didChangeObject anObject: AnyObject, atIndexPath indexPath: NSIndexPath?, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath?) {
-        guard let ip = indexPath else {
-            return
-        }
+
+
         
         switch type {
         case .Insert :
             // get index path of didChangeObject
             //
             
-            if indexPath != newIndexPath {
+            if let ip = newIndexPath {
                 tableView.insertRowsAtIndexPaths([ip], withRowAnimation: .Automatic)
             }
             break
         case .Delete :
-            tableView.deleteRowsAtIndexPaths([ip], withRowAnimation: .Fade)
+            if let ip = indexPath {
+                tableView.deleteRowsAtIndexPaths([ip], withRowAnimation: .Fade)
+            }
         case .Update :
-            tableView.reloadRowsAtIndexPaths([ip], withRowAnimation: .Automatic)
+            if let ip = indexPath {
+                tableView.reloadRowsAtIndexPaths([ip], withRowAnimation: .Automatic)
+            }
         case .Move :
-            tableView.deleteRowsAtIndexPaths([ip], withRowAnimation: .None)
-            tableView.insertRowsAtIndexPaths([ip], withRowAnimation: .None)
+            if let ip = indexPath, newIP = newIndexPath {
+                tableView.deleteRowsAtIndexPaths([newIP], withRowAnimation: .None)
+                tableView.insertRowsAtIndexPaths([ip], withRowAnimation: .None)
+                
+            }
         }
         
     }

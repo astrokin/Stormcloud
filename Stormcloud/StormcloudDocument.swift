@@ -33,7 +33,14 @@ public class BackupDocument: UIDocument {
         
         if let hasData = self.objectsToBackup {
             do {
-                data = try NSJSONSerialization.dataWithJSONObject(hasData, options: NSJSONWritingOptions())
+                let jsonOptions : NSJSONWritingOptions
+                if StormcloudEnvironment.VerboseLogging.isEnabled() {
+                    jsonOptions = .PrettyPrinted
+                } else {
+                    jsonOptions = NSJSONWritingOptions()
+                }
+                
+                data = try NSJSONSerialization.dataWithJSONObject(hasData, options: jsonOptions)
             } catch {
                 print("Error writing JSON")
             }

@@ -12,6 +12,7 @@ enum ICEDefaultsKeys : String {
 }
 
 enum ICEEnvironmentKeys : String, StormcloudEnvironmentVariable {
+    case DeleteStore = "ICEDeleteStore"
     case DeleteAllItems = "ICEDeleteAllItems"
     case MoveDefaultItems = "ICEMoveDefaultItems"
     func stringValue() -> String {
@@ -56,10 +57,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Override point for customization after application launch.
         self.defaultsManager.prefix = "com.voyagetravelapps.iCloud-Extravaganza"
         
-        
-        
-        
-        
         let adder = CloudAdder(context: nil)
         
         if ICEEnvironmentKeys.DeleteAllItems.isEnabled() {
@@ -68,6 +65,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         if ICEEnvironmentKeys.MoveDefaultItems.isEnabled() {
             adder.copyDefaultFiles("json")
         }
+        if ICEEnvironmentKeys.DeleteStore.isEnabled() {
+            coreDataStack.deleteStore()
+        }
+        
+        
         
         
         coreDataStack.setupStore { () -> Void in

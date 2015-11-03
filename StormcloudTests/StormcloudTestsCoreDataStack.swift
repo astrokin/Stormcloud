@@ -176,6 +176,7 @@ public class CoreDataStack {
     }
     
     
+    
     @available(iOS 9.0, OSX 10.11, *)
     public func replaceStore() {
         save()
@@ -184,7 +185,8 @@ public class CoreDataStack {
             if let sourceStore = NSBundle.mainBundle().URLForResource(self.modelName, withExtension: "sqlite") {
                 try persistentStoreCoordinator?.replacePersistentStoreAtURL(storeURL, destinationOptions: self.storeOptions(), withPersistentStoreFromURL: sourceStore, sourceOptions: self.storeOptions(), storeType: NSSQLiteStoreType)
                 print("Store replaced")
-                
+            } else {
+                print("No replacement found")
             }
         } catch {
             print("Error deleting store")
@@ -201,21 +203,36 @@ public class CoreDataStack {
         
         managedObjectContext = nil
         privateContext = nil
-        persistentStoreCoordinator = nil
+
+let storeURL = self.applicationDocumentsDirectory().URLByAppendingPathComponent("\(self.modelName).sqlite")
         
-        
-        let storeURL = self.applicationDocumentsDirectory().URLByAppendingPathComponent("\(self.modelName).sqlite")
-        let walURL = self.applicationDocumentsDirectory().URLByAppendingPathComponent("\(self.modelName).sqlite-wal")
-        let shmURL = self.applicationDocumentsDirectory().URLByAppendingPathComponent("\(self.modelName).sqlite-shm")
-        
-        
-        do {
-            try NSFileManager.defaultManager().removeItemAtURL(storeURL)
-            try NSFileManager.defaultManager().removeItemAtURL(walURL)
-            try NSFileManager.defaultManager().removeItemAtURL(shmURL)
-        } catch let error as NSError {
-            print("Error deleting store files: \(error.localizedDescription)")
+        if #available(iOS 9.0, OSX 10.9, *) {
+            
+            do {
+                try  self.persistentStoreCoordinator?.destroyPersistentStoreAtURL(storeURL, withType: NSSQLiteStoreType, options: self.storeOptions())
+            } catch {
+                print("Couldn't delete store")
+            }
+            
+            
+            persistentStoreCoordinator = nil
+        } else {
+            
+            let walURL = self.applicationDocumentsDirectory().URLByAppendingPathComponent("\(self.modelName).sqlite-wal")
+            let shmURL = self.applicationDocumentsDirectory().URLByAppendingPathComponent("\(self.modelName).sqlite-shm")
+            
+            
+            do {
+                try NSFileManager.defaultManager().removeItemAtURL(storeURL)
+                try NSFileManager.defaultManager().removeItemAtURL(walURL)
+                try NSFileManager.defaultManager().removeItemAtURL(shmURL)
+            } catch let error as NSError {
+                print("Error deleting store files: \(error.localizedDescription)")
+            }
+            
         }
+        
+        
         initialiseCoreData()
     }
     
