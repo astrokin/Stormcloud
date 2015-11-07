@@ -26,6 +26,8 @@ class DocumentsTableViewController: UITableViewController {
 
 
         // MARK: - To Copy
+        self.documentsManager.fileLimit = 3
+
         self.documentsManager.delegate = self
         self.documentsManager.reloadData()
         self.tableView.reloadData()
@@ -34,6 +36,16 @@ class DocumentsTableViewController: UITableViewController {
         self.iCloudSwitch.on = self.documentsManager.isUsingiCloud
     }
 
+    override func viewWillAppear(animated: Bool) {
+        super.viewWillAppear(animated)
+        self.documentsManager.deleteItemsOverLimit { (error) -> () in
+            if error != nil {
+                print("Error deleting items over limit")
+            }
+            print(self.documentsManager.metadataList)
+        }
+    }
+    
     override func viewDidAppear(animated: Bool) {
         super.viewDidAppear(animated)
 //        self.configureDocuments()

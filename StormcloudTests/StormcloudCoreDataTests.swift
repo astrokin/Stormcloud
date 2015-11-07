@@ -183,8 +183,6 @@ class StormcloudCoreDataTests: StormcloudTestsBaseClass {
             XCTFail("Couldn't read data")
         }
         
-        print(jsonObjects)
-        
         XCTAssertEqual(jsonObjects.count, (totalRaindrops * totalClouds) + totalClouds + totalTags)
         
         if let objects = jsonObjects as? [String : AnyObject]  {
@@ -364,6 +362,63 @@ class StormcloudCoreDataTests: StormcloudTestsBaseClass {
         
     }
     
+    
+    func testWeirdStrings() {
+        // Keep a copy of all the data and make sure it's the same when it gets back in to the DB
+        
+        self.setupStack()
+        
+
+        if let context = self.stack.managedObjectContext {
+            do {
+                try Cloud.insertCloudWithName("\("String \" With 😀🐼🐵⸘&§@$€¥¢£₽₨₩৲₦₴₭₱₮₺฿৳૱௹﷼₹₲₪₡₥₳₤₸₢₵៛₫₠₣₰₧₯₶₷")", order: 0, didRain: true, inContext: context)
+            } catch {
+                print("Error inserting cloud")
+            }
+            
+            
+        }
+        self.backupCoreData()
+        
+        let items = self.listItemsAtURL()
+        XCTAssertEqual(items.count, 1)
+        XCTAssertEqual(self.manager.metadataList.count, 1)
+        
+        print(self.manager.urlForItem(self.manager.metadataList[0]))
+        
+        let expectation = expectationWithDescription("Restore expectation")
+        manager.restoreCoreDataBackup(withMetadata: self.manager.metadataList[0], toContext: stack.managedObjectContext!) { (success) -> () in
+            
+            XCTAssertNil(success)
+            XCTAssertEqual(NSThread.currentThread(), NSThread.mainThread())
+            expectation.fulfill()
+        }
+        
+        waitForExpectationsWithTimeout(10.0, handler: nil)
+        
+        if let context = self.stack.managedObjectContext {
+            
+            let request = NSFetchRequest(entityName: "Cloud")
+            request.sortDescriptors = [NSSortDescriptor(key: "order", ascending: true)]
+            let clouds : [Cloud]
+            do {
+                clouds = try context.executeFetchRequest(request) as! [Cloud]
+            } catch {
+                clouds = []
+            }
+            
+            XCTAssertEqual(clouds.count, 1)
+            
+            if clouds.count == 1  {
+                let cloud1 = clouds[0]
+                
+                XCTAssertEqual("\("String With 😀🐼🐵⸘&§@$€¥¢£₽₨₩৲₦₴₭₱₮₺฿৳૱௹﷼₹₲₪₡₥₳₤₸₢₵៛₫₠₣₰₧₯₶₷")", cloud1.name)
+                
+                
+            }
+        }
+        
+    }
     
     
 }

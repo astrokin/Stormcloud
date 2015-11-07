@@ -145,7 +145,7 @@ public class StormcloudMetadata: NSObject {
             }
             
             device = components[1]
-            deviceUUID = components[2]
+            deviceUUID = components[2].stringByReplacingOccurrencesOfString(".json", withString: "")
         }
         self.filename = filename
         self.device = device

@@ -278,31 +278,6 @@ extension Stormcloud {
         self.operationInProgress = true
         
         
-        // Knock one off as we're about to back up
-        let limit = self.fileLimit - 1
-        if self.fileLimit > 0 && self.metadataList.count > limit {
-            for var i = limit; i < self.metadataList.count; i++ {
-                let metadata = self.metadataList[i]
-                
-                let backupCompletion = completion
-                var success = true
-                self.deleteItem(metadata, completion: { (index, error) -> () in
-                    if let _ = error {
-                        success = false
-                        backupCompletion(error: .CouldntDelete, metadata: metadata)
-                    }
-                })
-                if !success {
-                    self.operationInProgress = false
-                    return
-                }
-                
-            }
-            self.sortDocuments()
-        }
-        
-
-        
         if let baseURL = self.documentsDirectory() {
             let metadata = StormcloudMetadata()
             let finalURL = baseURL.URLByAppendingPathComponent(metadata.filename)
@@ -357,6 +332,7 @@ extension Stormcloud {
                             } else {
                                 completion(error: StormcloudError.CouldntMoveDocumentToiCloud, metadata: metadata)
                             }
+                            
                         })
                     })
                 }
@@ -904,6 +880,126 @@ extension Stormcloud {
         }
     }
     
+    public func deleteItemsOverLimit( completion : ( error : StormcloudError? ) -> () ) {
+        
+        // Knock one off as we're about to back up
+        let limit = self.fileLimit - 1
+        var itemsToDelete : [StormcloudMetadata] = []
+        if self.fileLimit > 0 && self.metadataList.count > limit {
+            for var i = limit; i < self.metadataList.count; i++ {
+                let metadata = self.metadataList[i]
+                itemsToDelete.append(metadata)
+                
+            }
+        }
+        
+        for item in itemsToDelete {
+            self.deleteItem(item, completion: { (index, error) -> () in
+                if let hasError = error {
+                    self.stormcloudLog("Error deleting: \(hasError.localizedDescription)")
+                    completion(error: .CouldntDelete)
+                }
+            })
+        }
+        
+    }
+    
+    public func deleteItems( metadataItems : [StormcloudMetadata], completion : (index : Int?, error : NSError? ) -> () ) {
+        
+        // Pull them out of the internal list first
+        var urlList : [ NSURL : Int ] = [:]
+        var errorList : [StormcloudMetadata] = []
+        for item in metadataItems {
+            if let itemURL = self.urlForItem(item), idx = self.internalMetadataList.indexOf(item) {
+                urlList[itemURL] = idx
+            } else {
+                errorList.append(item)
+            }
+        }
+        
+        for (_, idx) in urlList {
+            self.internalMetadataList.removeAtIndex(idx)
+        }
+        self.sortDocuments()
+
+        // Remove them from the internal list
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), { () -> Void in
+            
+            // TESTING ENVIRONMENT
+            if StormcloudEnvironment.MangleDelete.isEnabled() {
+                sleep(2)
+                dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                    let deleteError = StormcloudError.CouldntDelete
+                    let error = NSError(domain:deleteError.domain(), code: deleteError.rawValue, userInfo: nil)
+                    completion(index: nil, error: error )
+                })
+                return
+            }
+            // ENDs
+            var hasError : NSError?
+            for (url, _) in urlList {
+                let coordinator = NSFileCoordinator(filePresenter: nil)
+                coordinator.coordinateWritingItemAtURL(url, options: .ForDeleting, error:nil, byAccessor: { (url) -> Void in
+
+                    do {
+                        try NSFileManager.defaultManager().removeItemAtURL(url)
+                    } catch let error as NSError  {
+                        hasError = error
+                    }
+                    
+                })
+                
+                if hasError != nil {
+                    break
+                }
+                
+            }
+            dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                completion(index : nil, error: hasError)
+
+            })
+        })
+
+        
+//
+//        if let itemURL = self.urlForItem(metadataItem), let idx = self.internalMetadataList.indexOf(metadataItem) {
+//            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), { () -> Void in
+//                
+//                // TESTING ENVIRONMENT
+//                if StormcloudEnvironment.MangleDelete.isEnabled() {
+//                    sleep(2)
+//                    dispatch_async(dispatch_get_main_queue(), { () -> Void in
+//                        let deleteError = StormcloudError.CouldntDelete
+//                        let error = NSError(domain:deleteError.domain(), code: deleteError.rawValue, userInfo: nil)
+//                        completion(index: nil, error: error )
+//                    })
+//                    return
+//                }
+//                // ENDs
+//                
+//                let coordinator = NSFileCoordinator(filePresenter: nil)
+//                coordinator.coordinateWritingItemAtURL(itemURL, options: .ForDeleting, error:nil, byAccessor: { (url) -> Void in
+//                    var hasError : NSError?
+//                    do {
+//                        try NSFileManager.defaultManager().removeItemAtURL(url)
+//                    } catch let error as NSError  {
+//                        hasError = error
+//                    }
+//                    dispatch_async(dispatch_get_main_queue(), { () -> Void in
+//                        self.internalMetadataList.removeAtIndex(idx)
+//                        completion(index : (hasError != nil) ? idx : nil, error: hasError)
+//                        self.sortDocuments()
+//                    })
+//                })
+//            })
+//        } else {
+//            
+//
+//        }
+    }
+    
+    
+    
     /**
      Deletes the document represented by the metadataItem object
      
@@ -911,43 +1007,7 @@ extension Stormcloud {
      - parameter completion:   The completion handler to run when the delete completes
      */
     public func deleteItem(metadataItem : StormcloudMetadata, completion : (index : Int?, error : NSError?) -> () ) {
-        
-        if let itemURL = self.urlForItem(metadataItem), let idx = self.internalMetadataList.indexOf(metadataItem) {
-            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), { () -> Void in
-                
-                // TESTING ENVIRONMENT
-                if StormcloudEnvironment.MangleDelete.isEnabled() {
-                    sleep(2)
-                    dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                        let deleteError = StormcloudError.CouldntDelete
-                        let error = NSError(domain:deleteError.domain(), code: deleteError.rawValue, userInfo: nil)
-                        completion(index: nil, error: error )
-                    })
-                    return
-                }
-                // ENDs
-                
-                let coordinator = NSFileCoordinator(filePresenter: nil)
-                coordinator.coordinateWritingItemAtURL(itemURL, options: .ForDeleting, error:nil, byAccessor: { (url) -> Void in
-                    var hasError : NSError?
-                    do {
-                        try NSFileManager.defaultManager().removeItemAtURL(url)
-                        self.internalMetadataList.removeAtIndex(idx)
-                    } catch let error as NSError  {
-                        hasError = error
-                    }
-                    dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                        completion(index : (hasError != nil) ? idx : nil, error: hasError)
-                        self.sortDocuments()
-                    })
-                })
-            })
-        } else {
-
-            let urlError = StormcloudError.InvalidURL
-            let error = NSError(domain: urlError.domain(), code: urlError.rawValue, userInfo: [NSLocalizedDescriptionKey : "Couldn't get a valid URL for the item"])
-            completion(index : nil, error : error)
-        }
+        self.deleteItems([metadataItem], completion: completion)
     }
 }
 
