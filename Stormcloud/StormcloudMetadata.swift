@@ -44,6 +44,18 @@ public class StormcloudMetadata: NSObject {
             return false
         }
     }
+    
+    /// A read only property indicating that returns true when the document is currently downloading
+    public var isDownloaded : Bool {
+        get {
+            if let metadata = iCloudMetadata {
+                if let isDownloading = metadata.valueForAttribute(NSMetadataUbiquitousItemDownloadingStatusDownloaded) as? Bool {
+                    return isDownloaded
+                }
+            }
+            return false
+        }
+    }
 
     /// A read only property indicating that returns true when the document is currently downloading
     public var isDownloading : Bool {
