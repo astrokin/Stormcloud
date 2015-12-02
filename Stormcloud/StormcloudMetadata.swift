@@ -49,7 +49,7 @@ public class StormcloudMetadata: NSObject {
     public var isDownloaded : Bool {
         get {
             if let metadata = iCloudMetadata {
-                if let isDownloading = metadata.valueForAttribute(NSMetadataUbiquitousItemDownloadingStatusDownloaded) as? Bool {
+                if let isDownloaded = metadata.valueForAttribute(NSMetadataUbiquitousItemDownloadingStatusDownloaded) as? Bool {
                     return isDownloaded
                 }
             }
