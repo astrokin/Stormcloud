@@ -338,12 +338,12 @@ extension Stormcloud {
         }
     }
 	
-    public func backupCoreDataEntities( inContext context : NSManagedObjectContext, completion : ( error : StormcloudError?, metadata : StormcloudMetadata?) -> () ) {
+    public func backupCoreDataEntities( inContext currentContext : NSManagedObjectContext, completion : ( error : StormcloudError?, metadata : StormcloudMetadata?) -> () ) {
         
-        self.stormcloudLog("Beginning backup of Core Data with context : \(context)")
+        self.stormcloudLog("Beginning backup of Core Data with context : \(currentContext)")
         
         do {
-            try context.save()
+            try currentContext.save()
         } catch {
             stormcloudLog("Error saving context")
         }
@@ -352,7 +352,9 @@ extension Stormcloud {
             return
         }
         self.operationInProgress = true
-        
+
+		let context = NSManagedObjectContext(concurrencyType: .PrivateQueueConcurrencyType)
+		context.parentContext = currentContext
         context.performBlock { () -> Void in
             
             // Dictionaries are a list of all objects, with their ManagedObjectID as the key and a dictionary of their parts as the object
