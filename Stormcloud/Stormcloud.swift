@@ -323,23 +323,21 @@ extension Stormcloud {
                         completion(error: nil, metadata: (totalSuccess) ? metadata : metadata)
                     })
                 } else {
-                    self.moveItemsToiCloud([metadata.filename], completion: { (success) -> Void in
-                        dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                            
-                            self.operationInProgress = false
-                            if totalSuccess {
-                                completion(error:  nil, metadata: metadata)
-                            } else {
-                                completion(error: StormcloudError.CouldntMoveDocumentToiCloud, metadata: metadata)
-                            }
-                            
-                        })
-                    })
+					dispatch_async(dispatch_get_main_queue(), { () -> Void in
+						self.moveItemsToiCloud([metadata.filename], completion: { (success) -> Void in
+							self.operationInProgress = false
+							if totalSuccess {
+								completion(error:  nil, metadata: metadata)
+							} else {
+								completion(error: StormcloudError.CouldntMoveDocumentToiCloud, metadata: metadata)
+							}
+						})
+					})
                 }
             })
         }
     }
-    
+	
     public func backupCoreDataEntities( inContext context : NSManagedObjectContext, completion : ( error : StormcloudError?, metadata : StormcloudMetadata?) -> () ) {
         
         self.stormcloudLog("Beginning backup of Core Data with context : \(context)")
@@ -355,14 +353,12 @@ extension Stormcloud {
         }
         self.operationInProgress = true
         
-        let privateContext = NSManagedObjectContext(concurrencyType: .PrivateQueueConcurrencyType)
-        privateContext.parentContext = context
-        privateContext.performBlock { () -> Void in
+        context.performBlock { () -> Void in
             
             // Dictionaries are a list of all objects, with their ManagedObjectID as the key and a dictionary of their parts as the object
             var dictionary : [String : [ String : AnyObject ] ] = [:]
             
-            if let entities = privateContext.persistentStoreCoordinator?.managedObjectModel.entities {
+            if let entities = context.persistentStoreCoordinator?.managedObjectModel.entities {
                 
                 self.formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZZZ"
                 for entity in entities {
@@ -371,10 +367,12 @@ extension Stormcloud {
                         
                         let allObjects : [NSManagedObject]
                         do {
-                            allObjects = try privateContext.executeFetchRequest(request) as! [NSManagedObject]
+                            allObjects = try context.executeFetchRequest(request) as! [NSManagedObject]
                         } catch {
                             allObjects = []
                         }
+						
+						self.stormcloudLog("Found \(allObjects.count) of \(entityName) to back up")
                         
                         for object in allObjects {
                             let uriRepresentation = object.objectID.URIRepresentation().absoluteString
@@ -759,26 +757,6 @@ extension Stormcloud {
 // MARK: - Restoring
 
 extension Stormcloud {
-
-    func mergeCoreDataBackup(withMetadata metadata : StormcloudMetadata, toContext context : NSManagedObjectContext, completion : (success : Bool ) -> () ) {
-        
-        
-        do {
-            try context.save()
-        } catch {
-            // TODO : Handle errors better
-            stormcloudLog("Error saving context")
-        }
-        
-        
-        let privateContext = NSManagedObjectContext(concurrencyType: .PrivateQueueConcurrencyType)
-        privateContext.parentContext = context
-        privateContext.performBlock { () -> Void in
-            
-            
-        }
-    }
-    
     
     
     /**

@@ -133,12 +133,8 @@ public class CoreDataStack {
                     abort()
                 }
             }
-            
-            
-            
-            
-            
-            if let callback = self.callback {
+
+			if let callback = self.callback {
                 dispatch_sync(dispatch_get_main_queue(), { () -> Void in
                     callback()
                 })

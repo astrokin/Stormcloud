@@ -263,7 +263,7 @@ extension DocumentsTableViewController {
 //            easyJSON = ["Item" : "No Value"]
 //        }
 
-        if let context = self.stack?.managedObjectContext {
+        if let context = self.stack?.privateContext {
             self.documentsManager.backupCoreDataEntities(inContext: context, completion: { (error, metadata) -> () in
 
                 var title = NSLocalizedString("Success!", comment: "The title of the alert box shown when a backup successfully completes")
