@@ -15,7 +15,11 @@ Bumps the patch version, increments it, and pushes it to both the remote and spe
 ```
 fastlane ios minor
 ```
-Bumps the minor version, increments it, and pushes it to both the remote and spec repos
+This does the following: 
+
+
+
+-  Bumps the minor version, increments it, and pushes it to both the remote and spec repos.
 
 ----
 

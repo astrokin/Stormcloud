@@ -33,16 +33,26 @@ platform :ios do
 		increment_build_number
 	end
 
-	desc "Bumps the patch version, increments it, and pushes it to both the remote and spec repos"
+	desc "This does the following: "
+	desc ""
+	desc "- Runs the unit tests"  
+	desc "- Ensures Cocoapods compatibility"  
+	desc "- Bumps the patch version"  
+	desc "- Pushes it to the remote repository"
+	desc "- Updates the spec repository"
 	lane :patch do
 		update(type: "patch")
 	end
 	
 	desc "This does the following: "
 	desc ""
-	desc "-  Bumps the minor version, increments it, and pushes it to both the remote and spec repos."  
+	desc "- Runs the unit tests"  
+	desc "- Ensures Cocoapods compatibility"  
+	desc "- Bumps the minor version"  
+	desc "- Pushes it to the remote repository"
+	desc "- Updates the spec repository"
 	lane :minor do
-		# update(type: "minor")
+		update(type: "minor")
 	end  
 	
 	private_lane :update do |options|
