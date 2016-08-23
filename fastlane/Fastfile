@@ -34,7 +34,8 @@ platform :ios do
 	desc "Bumps the patch version, increments it, and pushes it to both the remote and spec repos"
 	lane :patch do
 		# snapshot
-		update(type: "patch")
+		scan
+		# update(type: "patch")
 	end
 	
 	desc "Bumps the minor version, increments it, and pushes it to both the remote and spec repos"  
@@ -46,6 +47,7 @@ platform :ios do
 	
 	private_lane :update do |options|
 
+		scan
 		pod_lib_lint
 
 		type = options[:type]

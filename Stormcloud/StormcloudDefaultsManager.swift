@@ -15,9 +15,9 @@ public class StormcloudDefaultsManager: NSObject {
     
     override public init() {
         super.init()
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("ubiquitousContentDidChange:"), name: NSUbiquitousKeyValueStoreDidChangeExternallyNotification, object: nil)
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("enablediCloud:"), name: NSUbiquityIdentityDidChangeNotification, object: nil)
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("userDefaultsDidChange:"), name: NSUserDefaultsDidChangeNotification, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(StormcloudDefaultsManager.ubiquitousContentDidChange(_:)), name: NSUbiquitousKeyValueStoreDidChangeExternallyNotification, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(StormcloudDefaultsManager.enablediCloud(_:)), name: NSUbiquityIdentityDidChangeNotification, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(StormcloudDefaultsManager.userDefaultsDidChange(_:)), name: NSUserDefaultsDidChangeNotification, object: nil)
         NSUbiquitousKeyValueStore.defaultStore().synchronize()
     }
     

@@ -147,7 +147,7 @@ public class Stormcloud: NSObject {
             
         }
         // Add observer for iCloud user changing
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("iCloudUserChanged:"), name: NSUbiquityIdentityDidChangeNotification, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(Stormcloud.iCloudUserChanged(_:)), name: NSUbiquityIdentityDidChangeNotification, object: nil)
         
         let data = NSKeyedArchiver.archivedDataWithRootObject(token)
         NSUserDefaults.standardUserDefaults().setObject(data, forKey: StormcloudPrefKey.iCloudToken.rawValue)
@@ -1173,8 +1173,8 @@ extension Stormcloud {
         self.metadataQuery.searchScopes = [NSMetadataQueryUbiquitousDocumentsScope]
         self.metadataQuery.predicate = NSPredicate(format: "%K CONTAINS '.json'", NSMetadataItemFSNameKey)
         
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("metadataFinishedGathering"), name:NSMetadataQueryDidFinishGatheringNotification , object: nil)
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("metadataUpdated"), name:NSMetadataQueryDidUpdateNotification, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(Stormcloud.metadataFinishedGathering), name:NSMetadataQueryDidFinishGatheringNotification , object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(Stormcloud.metadataUpdated), name:NSMetadataQueryDidUpdateNotification, object: nil)
         
         self.metadataQuery.startQuery()
     }

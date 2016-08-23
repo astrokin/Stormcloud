@@ -205,7 +205,7 @@ public class CoreDataStack {
         
         let storeURL = self.applicationDocumentsDirectory().URLByAppendingPathComponent("\(self.modelName).sqlite")
         
-        if #available(iOS 9.0, OSX 10.9, *) {
+        if #available(OSX 10.9, *) {
             
             do {
                 try  self.persistentStoreCoordinator?.destroyPersistentStoreAtURL(storeURL, withType: NSSQLiteStoreType, options: self.storeOptions())

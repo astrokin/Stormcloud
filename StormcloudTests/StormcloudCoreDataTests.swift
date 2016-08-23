@@ -157,11 +157,11 @@ class StormcloudCoreDataTests: StormcloudTestsBaseClass {
 
         self.setupStack()
         let tags = self.addTags()
-        
-        for var i = 1; i <= totalClouds; i++ {
-            self.addObjectsWithNumber(i, tags:  tags)
-        }
-        
+		
+		for i in 1...totalClouds {
+			self.addObjectsWithNumber(i, tags:  tags)
+		}
+		        
         self.backupCoreData()
         
         let items = self.listItemsAtURL()
