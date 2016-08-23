@@ -46,6 +46,8 @@ platform :ios do
 	
 	private_lane :update do |options|
 
+		pod_lib_lint
+
 		type = options[:type]
 
 		version = version_bump_podspec(path: spec, bump_type: type)
