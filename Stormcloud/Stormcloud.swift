@@ -269,7 +269,7 @@ extension Stormcloud {
      */
     public func backupObjectsToJSON( objects : AnyObject, completion : (error : StormcloudError?, metadata : StormcloudMetadata?) -> () ) {
         
-        self.stormcloudLog("\(__FUNCTION__)")
+        self.stormcloudLog("\(#function)")
         
         if self.operationInProgress {
             completion(error: .BackupInProgress, metadata: nil)
@@ -305,7 +305,7 @@ extension Stormcloud {
                 
                 if ( !totalSuccess ) {
                     
-                    self.stormcloudLog("\(__FUNCTION__): Error saving new document")
+                    self.stormcloudLog("\(#function): Error saving new document")
                     
                     dispatch_async(dispatch_get_main_queue(), { () -> Void in
                         self.operationInProgress = false
@@ -410,7 +410,7 @@ extension Stormcloud {
                 }
                 if !NSJSONSerialization.isValidJSONObject(dictionary) {
 
-                   self.stormcloudLog("\(__FUNCTION__) Error: Dictionary not valid: \(dictionary)")
+                   self.stormcloudLog("\(#function) Error: Dictionary not valid: \(dictionary)")
                     
                     dispatch_async(dispatch_get_main_queue(), { () -> Void in
                         self.operationInProgress = false
@@ -434,7 +434,7 @@ extension Stormcloud {
 extension Stormcloud {
     func insertObjectsWithContext( context : NSManagedObjectContext, data : [String : AnyObject], completion : (success : Bool) -> ()  ) {
         
-        stormcloudLog("\(__FUNCTION__)")
+        stormcloudLog("\(#function)")
         
         let privateContext = NSManagedObjectContext(concurrencyType: .PrivateQueueConcurrencyType)
         privateContext.parentContext = context

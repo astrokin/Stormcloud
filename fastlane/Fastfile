@@ -20,58 +20,69 @@ fastlane_version "1.36.1"
 
 default_platform :ios
 
-
-
 platform :ios do
 
-  spec = "Stormcloud.podspec"
+	spec = "Stormcloud.podspec"
 
-  before_all do
-    ensure_git_branch    
-    ensure_git_status_clean
-    increment_build_number
-    # xctool # run the tests of your app
-  end
+	before_all do
+		ENV["SLACK_URL"] = "https://hooks.slack.com/services/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"
+		ensure_git_branch    
+		ensure_git_status_clean
+		increment_build_number
+	end
 
-  desc "Bumps the patch version, increments it, and pushes it to both the remote and spec repos"
-  lane :patch do
-    # snapshot
-    update(type: "patch")
-  end
-  
-  desc "Bumps the minor version, increments it, and pushes it to both the remote and spec repos"  
-  lane :minor do
-    # snapshot
-    update(type: "minor")
+	desc "Bumps the patch version, increments it, and pushes it to both the remote and spec repos"
+	lane :patch do
+		# snapshot
+		update(type: "patch")
+	end
+	
+	desc "Bumps the minor version, increments it, and pushes it to both the remote and spec repos"  
+	lane :minor do
+		# snapshot
+		update(type: "minor")
 
-  end  
-  
-  private_lane :update do |options|
+	end  
+	
+	private_lane :update do |options|
 
-    type = options[:type]
+		type = options[:type]
 
-    version = version_bump_podspec(path: spec, bump_type: type)
-    increment_version_number( bump_type: type, version_number: version )
+		version = version_bump_podspec(path: spec, bump_type: type)
+		increment_version_number( bump_type: type, version_number: version )
 
-    git_commit(path: spec, message: "Updating podspec")
-    commit_version_bump(xcodeproj: './Stormcloud.xcodeproj')
-    add_git_tag( tag: version)  
-    push_to_git_remote
-    pod_push(path: spec)
+		git_commit(path: spec, message: "Updating podspec")
+		commit_version_bump(xcodeproj: './Stormcloud.xcodeproj')
+		add_git_tag( tag: version)  
+		push_to_git_remote
+		pod_push(path: spec)
+		post_to_slack(scheme: "Stormcloud", version: version)
+	end
 
-  end
+	private_lane :post_to_slack do |options|
+		scheme      = options[:scheme]
+		version     = options[:version]
+		environment = scheme.upcase
+
+		slack(
+			message: "New `#{environment}` version: *#{version}* released :rocket:",
+		) 
+	end
 
 
-  # You can define as many lanes as you want
+	# You can define as many lanes as you want
 
-  after_all do |lane|
-    # This block is called, only if the executed lane was successful
-    notification(subtitle: "Stormcloud fastlane finished", message: "Completed '#{lane}' successfully")
-  end
+	after_all do |lane|
+		# This block is called, only if the executed lane was successful
+		notification(subtitle: "Stormcloud fastlane finished", message: "Completed '#{lane}' successfully")
+	end
 
-  error do |lane, exception|
-    notification(subtitle: "Error: Stormcloud fastlane", message: "'#{exception.message}'")
-  end
+	error do |lane, exception|
+		notification(subtitle: "Error: Stormcloud fastlane", message: "'#{exception.message}'")
+		slack(
+			message: "Stormcloud: Error with '#{lane}'.\n\n#{exception.message}"
+			)
+	end
 end
 
 
