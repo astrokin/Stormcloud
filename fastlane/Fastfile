@@ -35,15 +35,14 @@ platform :ios do
 
 	desc "Bumps the patch version, increments it, and pushes it to both the remote and spec repos"
 	lane :patch do
-		
 		update(type: "patch")
 	end
 	
-	desc "Bumps the minor version, increments it, and pushes it to both the remote and spec repos"  
+	desc "This does the following: "
+	desc ""
+	desc "-  Bumps the minor version, increments it, and pushes it to both the remote and spec repos."  
 	lane :minor do
-		# snapshot
-		update(type: "minor")
-
+		# update(type: "minor")
 	end  
 	
 	private_lane :update do |options|
