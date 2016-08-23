@@ -9,7 +9,9 @@
 import XCTest
 
 class StormcloudTests: StormcloudTestsBaseClass {
-    
+	
+	let year = NSCalendar.currentCalendar().component(.Year, fromDate: NSDate())
+	
     override func setUp() {
         super.setUp()
     }
@@ -91,7 +93,9 @@ class StormcloudTests: StormcloudTestsBaseClass {
         let newDocs = self.listItemsAtURL()
         XCTAssertEqual(stormcloud.metadataList.count, 2)
         XCTAssertEqual(stormcloud.metadataList.count, newDocs.count)
-        
+		
+		
+		
         let expectation = expectationWithDescription("Adding new item")
         stormcloud.backupObjectsToJSON(["Test" : "Test"]) { ( error,  metadata) -> () in
             
@@ -101,7 +105,7 @@ class StormcloudTests: StormcloudTestsBaseClass {
 
             if stormcloud.metadataList.count == 3 {
                 XCTAssert(stormcloud.metadataList[0].filename.containsString("2020"))
-                XCTAssert(stormcloud.metadataList[1].filename.containsString("2015"))
+                XCTAssert(stormcloud.metadataList[1].filename.containsString("\(self.year)"))
                 XCTAssert(stormcloud.metadataList[2].filename.containsString("2014"))
                 
             }
@@ -163,21 +167,31 @@ class StormcloudTests: StormcloudTestsBaseClass {
             
             XCTAssertNil(error)
             
-            XCTAssertEqual(stormcloud.metadataList.count, 2)
+            XCTAssertEqual(stormcloud.metadataList.count, 3)
             
             expectation.fulfill()
         }
         waitForExpectationsWithTimeout(3.0, handler: nil)
-        
+		
+        let deleteExpectation = expectationWithDescription("Deleting new item")
+		stormcloud.deleteItemsOverLimit { (error) in
+			XCTAssertNil(error)
+			
+			XCTAssertEqual(stormcloud.metadataList.count, 2)
+			
+			deleteExpectation.fulfill()
+		}
+		waitForExpectationsWithTimeout(3.0, handler: nil)
+		
         let stillTwoDocs = self.listItemsAtURL()
         XCTAssertEqual(stormcloud.metadataList.count, stillTwoDocs.count)
         
         if stormcloud.metadataList.count == 2 {
             // It should delete the oldest one
             XCTAssert(stormcloud.metadataList[0].filename.containsString("2020"))
-            XCTAssert(stormcloud.metadataList[1].filename.containsString("2015"))
+            XCTAssert(stormcloud.metadataList[1].filename.containsString("\(year)"), "Deleted the wrong file!")
         } else {
-            XCTFail("Too many documents")
+            XCTFail("Document number incorrect")
         }
     }
     

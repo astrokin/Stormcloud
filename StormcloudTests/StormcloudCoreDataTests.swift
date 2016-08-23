@@ -412,7 +412,7 @@ class StormcloudCoreDataTests: StormcloudTestsBaseClass {
             if clouds.count == 1  {
                 let cloud1 = clouds[0]
                 
-                XCTAssertEqual("\("String With 😀🐼🐵⸘&§@$€¥¢£₽₨₩৲₦₴₭₱₮₺฿৳૱௹﷼₹₲₪₡₥₳₤₸₢₵៛₫₠₣₰₧₯₶₷")", cloud1.name)
+                XCTAssertEqual("\("String \" With 😀🐼🐵⸘&§@$€¥¢£₽₨₩৲₦₴₭₱₮₺฿৳૱௹﷼₹₲₪₡₥₳₤₸₢₵៛₫₠₣₰₧₯₶₷")", cloud1.name)
                 
                 
             }

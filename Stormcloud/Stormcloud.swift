@@ -866,11 +866,13 @@ extension Stormcloud {
         let limit = self.fileLimit - 1
         var itemsToDelete : [StormcloudMetadata] = []
         if self.fileLimit > 0 && self.metadataList.count > limit {
-            for var i = limit; i < self.metadataList.count; i++ {
-                let metadata = self.metadataList[i]
-                itemsToDelete.append(metadata)
-                
-            }
+			
+
+			for i in self.fileLimit..<self.metadataList.count {
+				let metadata = self.metadataList[i]
+				itemsToDelete.append(metadata)				
+			}
+			
         }
         
         for item in itemsToDelete {
@@ -878,7 +880,9 @@ extension Stormcloud {
                 if let hasError = error {
                     self.stormcloudLog("Error deleting: \(hasError.localizedDescription)")
                     completion(error: .CouldntDelete)
-                }
+				} else {
+					completion(error: nil)
+				}
             })
         }
         
