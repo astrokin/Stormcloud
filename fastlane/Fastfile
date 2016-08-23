@@ -41,12 +41,7 @@ platform :ios do
 	desc "- Pushes it to the remote repository"
 	desc "- Updates the spec repository"
 	lane :patch do
-		# update(type: "patch")
-				scan(
-			scheme: scheme,
-			output_directory: "../Reports/"
-		)
-
+		update(type: "patch")
 	end
 	
 	desc "This does the following: "
@@ -64,7 +59,8 @@ platform :ios do
 
 		scan(
 			scheme: scheme,
-			output_directory: "../Reports/"
+			output_directory: "../Reports/",
+			skip_slack: true
 		)
 		pod_lib_lint
 
