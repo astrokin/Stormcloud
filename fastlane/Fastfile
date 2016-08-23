@@ -41,7 +41,12 @@ platform :ios do
 	desc "- Pushes it to the remote repository"
 	desc "- Updates the spec repository"
 	lane :patch do
-		update(type: "patch")
+		# update(type: "patch")
+				scan(
+			scheme: scheme,
+			output_directory: "../Reports/"
+		)
+
 	end
 	
 	desc "This does the following: "
@@ -57,7 +62,10 @@ platform :ios do
 	
 	private_lane :update do |options|
 
-		scan(scheme: scheme)
+		scan(
+			scheme: scheme,
+			output_directory: "../Reports/"
+		)
 		pod_lib_lint
 
 		type = options[:type]
