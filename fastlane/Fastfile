@@ -20,6 +20,8 @@ fastlane_version "1.36.1"
 
 default_platform :ios
 
+scheme = "Stormcloud"
+
 platform :ios do
 
 	spec = "Stormcloud.podspec"
@@ -33,8 +35,7 @@ platform :ios do
 
 	desc "Bumps the patch version, increments it, and pushes it to both the remote and spec repos"
 	lane :patch do
-		# snapshot
-		scan
+		scan(scheme: scheme)
 		# update(type: "patch")
 	end
 	
@@ -47,7 +48,6 @@ platform :ios do
 	
 	private_lane :update do |options|
 
-		scan
 		pod_lib_lint
 
 		type = options[:type]
@@ -60,7 +60,7 @@ platform :ios do
 		add_git_tag( tag: version)  
 		push_to_git_remote
 		pod_push(path: spec)
-		post_to_slack(scheme: "Stormcloud", version: version)
+		post_to_slack(scheme: scheme, version: version)
 	end
 
 	private_lane :post_to_slack do |options|
