@@ -114,7 +114,7 @@ extension CloudDetailViewController {
 }
 
 extension CloudDetailViewController : UITextFieldDelegate {
-    func textFieldShouldReturn(textField: UITextField) -> Bool {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
         return true
     }
@@ -127,7 +127,7 @@ extension CloudDetailViewController : UITextFieldDelegate {
 
 extension CloudDetailViewController {
     
-    @IBAction func selectedRaindropType( sender : UISegmentedControl ) {
+    @IBAction func selectedRaindropType( _ sender : UISegmentedControl ) {
         
         guard let cloud = self.currentCloud else {
             return
@@ -200,7 +200,7 @@ extension CloudDetailViewController {
             let maxDelay : TimeInterval = 0.5
             let randomPos = CGFloat(Float(arc4random()) / Float(UINT32_MAX))
             
-            self.perform(Selector("addDynamicItem:"), with: dynamicItem, afterDelay: TimeInterval(maxDelay * TimeInterval(randomPos)) + TimeInterval(i) * 0.2)
+			self.perform(#selector(self.addDynamicItem(item:)), with: dynamicItem, afterDelay: TimeInterval(maxDelay * TimeInterval(randomPos)) + TimeInterval(i) * 0.2)
             
 
             
@@ -236,7 +236,7 @@ extension CloudDetailViewController {
         }
     }
     
-    @IBAction func addRaindrop( sender : UIButton ) {
+    @IBAction func addRaindrop( _ sender : UIButton ) {
         
         guard let cloud = self.currentCloud else{
             return
@@ -255,21 +255,21 @@ extension CloudDetailViewController {
             print("Couldn't create raindrop")
         }
         
-        self.selectedRaindropType(sender: self.raindropType)
+        self.selectedRaindropType( self.raindropType)
     }
     
     
-    @IBAction func sliderChanged(sender: UISlider) {
+    @IBAction func sliderChanged(_ sender: UISlider) {
         self.exampleRaindrop.raindropColor  = self.colorFromSliders()
 
     }
     
-    @IBAction func dismissVC(sender : UIBarButtonItem ) {
+    @IBAction func dismissVC(_ sender : UIBarButtonItem ) {
         self.rollbackChanges()
         self.presentingViewController?.dismiss(animated: true, completion: nil)
     }
     
-    @IBAction func saveAndDismiss(sender : UIBarButtonItem ) {
+    @IBAction func saveAndDismiss(_ sender : UIBarButtonItem ) {
 
         self.saveChanges()
         self.presentingViewController?.dismiss(animated: true, completion: nil)

@@ -101,7 +101,7 @@ extension SettingsViewController {
 
 extension SettingsViewController {
     
-    @IBAction func addNewClouds( sender : UIButton ) {
+    @IBAction func addNewClouds( _ sender : UIButton ) {
         if let adder = self.cloudAdder, let stack = self.stack {
             let clouds = stack.performRequestForTemplate(ICEFetchRequests.CloudFetch)
             let total = Int(self.valueStepper.value)
@@ -114,7 +114,7 @@ extension SettingsViewController {
         }
     }
     
-    @IBAction func settingsSwitchChanged( sender : UISwitch ) {
+    @IBAction func settingsSwitchChanged( _ sender : UISwitch ) {
         
         var key : String?
         if let senderSwitch = sender.accessibilityLabel {
@@ -133,19 +133,20 @@ extension SettingsViewController {
         
     }
     
-    @IBAction func stepperChanged( sender : UIStepper ) {
+    @IBAction func stepperChanged( _ sender : UIStepper ) {
         self.valueLabel.text = "Add Clouds: \(Int(sender.value))"
         UserDefaults.standard.set(Int(sender.value), forKey: ICEDefaultsKeys.stepperValue.rawValue)
     }
     
-    @IBAction func dismissCloudVC(sender : UIBarButtonItem ) {
+    @IBAction func dismissCloudVC(_ sender : UIBarButtonItem ) {
         self.dismiss(animated: true, completion: nil)
     }
     
 }
 
 extension SettingsViewController {
-    func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+	
+	override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         
         if let navController = segue.destination as? UINavigationController, let documentsVC = navController.viewControllers.first as? DocumentsTableViewController {
             documentsVC.stack = self.stack

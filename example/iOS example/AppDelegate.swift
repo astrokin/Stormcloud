@@ -51,8 +51,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     var defaultsManager : StormcloudDefaultsManager = StormcloudDefaultsManager()
     
-    
-    
+       
     func application(_: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
         // Override point for customization after application launch.
         self.defaultsManager.prefix = "com.voyagetravelapps.iCloud-Extravaganza"
@@ -135,7 +134,7 @@ class CloudAdder : NSObject {
     
     func addCloudWithNumber(number : Int, addRaindrops : Bool ) {
         guard let context = self.context else {
-            return
+			fatalError("Context not set")
         }
         
         

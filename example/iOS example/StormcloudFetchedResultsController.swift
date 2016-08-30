@@ -42,12 +42,10 @@ public class StormcloudFetchedResultsController: UITableViewController {
         do {
             try frc?.performFetch()
         } catch {
-            print("Error performing fetch")
+            fatalError("Error performing fetch")
         }
-        
-        
-        
-        if enableDelete {
+
+		if enableDelete {
             self.navigationItem.leftBarButtonItem = self.editButtonItem
         }
     }
@@ -77,18 +75,20 @@ extension StormcloudFetchedResultsController {
 // MARK: - UITableViewDataSource
 
 extension StormcloudFetchedResultsController  {
-    public  func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+    public override func numberOfSections(in tableView: UITableView) -> Int {
         return frc?.sections?.count ?? 1
     }
+	
+	
     
-    public  func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    public override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if let sectionInfo = frc?.sections?[section] {
             return sectionInfo.numberOfObjects
         }
         return 0
     }
     
-    public  func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: IndexPath) -> UITableViewCell {
+    public override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
 		if let callback = self.cellCallback, let object = self.frc?.object(at: indexPath) as? NSManagedObject {
             return callback(tableView, object, indexPath)
@@ -157,7 +157,7 @@ extension StormcloudFetchedResultsController : NSFetchedResultsControllerDelegat
 // MARK: - Segue
 
 extension StormcloudFetchedResultsController {
-    public func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+    public override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         var controller : UIViewController  = segue.destination
         if let possibleNav = segue.destination as? UINavigationController {
             controller = possibleNav.viewControllers.first ?? possibleNav

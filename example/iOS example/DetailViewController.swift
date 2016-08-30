@@ -58,7 +58,7 @@ class DetailViewController: UIViewController {
     }
     
     
-    @IBAction func restoreObject(sender : UIButton) {
+    @IBAction func restoreObject(_ sender : UIButton) {
         if let context = self.stack?.managedObjectContext, let doc = self.document {
             self.activityIndicator.startAnimating()
             self.view.isUserInteractionEnabled = false

@@ -219,7 +219,7 @@ extension DocumentsTableViewController {
 
 extension DocumentsTableViewController {
     
-    @IBAction func enableiCloud( sender : UISwitch ) {
+    @IBAction func enableiCloud( _ sender : UISwitch ) {
         if sender.isOn {
             _ = self.documentsManager.enableiCloudShouldMoveLocalDocumentsToiCloud(true) { (error) -> Void in
                 
@@ -238,11 +238,11 @@ extension DocumentsTableViewController {
         }
     }
     
-    @IBAction func doneButton( sender : UIBarButtonItem ) {
+    @IBAction func doneButton(_  sender : UIBarButtonItem ) {
         self.presentingViewController?.dismiss(animated: true, completion: nil)
     }
     
-    @IBAction func addButton( sender : UIBarButtonItem ) {
+    @IBAction func addButton( _ sender : UIBarButtonItem ) {
 //        let jsonArray : AnyObject
 //        if let jsonFileURL = NSBundle.mainBundle().URLForResource("questions_json", withExtension: "json"),
 //            data = NSData(contentsOfURL: jsonFileURL) {
