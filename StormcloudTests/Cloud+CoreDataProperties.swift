@@ -14,7 +14,7 @@ import CoreData
 
 extension Cloud {
 
-    @NSManaged var added: NSDate?
+    @NSManaged var added: Date?
     @NSManaged var chanceOfRain: NSNumber?
     @NSManaged var didRain: NSNumber?
     @NSManaged var name: String?

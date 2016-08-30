@@ -10,24 +10,26 @@ import Foundation
 import CoreData
 
 @objc(Cloud)
-public class Cloud: NSManagedObject {
+open class Cloud: NSManagedObject {
 
 // Insert code here to add functionality to your managed object subclass
 
-    public class func insertCloudWithName(name : String, order : Int, didRain : Bool?, inContext context : NSManagedObjectContext ) throws -> Cloud {
-        if let cloud = NSEntityDescription.insertNewObjectForEntityForName("Cloud", inManagedObjectContext: context) as? Cloud {
+    open class func insertCloudWithName(_ name : String, order : Int, didRain : Bool?, inContext context : NSManagedObjectContext ) throws -> Cloud {
+        if let cloud = NSEntityDescription.insertNewObject(forEntityName: "Cloud", into: context) as? Cloud {
             cloud.name = name
-            cloud.order = order
-            cloud.didRain = didRain
-            cloud.added = NSDate()
+			cloud.order = NSNumber(value: order)
+			if let didRainSet = didRain {
+				cloud.didRain = NSNumber(value:didRainSet )
+			}
+            cloud.added = Date()
             cloud.chanceOfRain = 0.45
             return cloud
         } else {
-            throw ICECoreDataError.InvalidType
+            throw ICECoreDataError.invalidType
         }
     }
  
-    public func raindropsForType( type : RaindropType) -> [Raindrop] {
+    open func raindropsForType( _ type : RaindropType) -> [Raindrop] {
         var raindrops : [Raindrop] = []
         
         if let hasRaindrops = self.raindrops?.allObjects as? [Raindrop] {

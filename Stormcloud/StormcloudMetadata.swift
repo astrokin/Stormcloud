@@ -10,33 +10,33 @@ import UIKit
 
 @objc
 public protocol StormcloudMetadataDelegate {
-    func iCloudMetadataDidUpdate( metadata : StormcloudMetadata )
+    func iCloudMetadataDidUpdate( _ metadata : StormcloudMetadata )
 }
 
-public class StormcloudMetadata: NSObject {
+open class StormcloudMetadata: NSObject {
     
-    public static let dateFormatter = NSDateFormatter()
+    open static let dateFormatter = DateFormatter()
     
     /// A delegate that can be notified when the state of the backup document changes
-    public var delegate : StormcloudMetadataDelegate?
+    open var delegate : StormcloudMetadataDelegate?
     
-    public let date : NSDate
+    open let date : Date
     
     /// The original Device UUID on which this backup was originally created
-    public let deviceUUID : String
-    public let device : String
-    public let filename : String
-    public var iCloudMetadata : NSMetadataItem? {
+    open let deviceUUID : String
+    open let device : String
+    open let filename : String
+    open var iCloudMetadata : NSMetadataItem? {
         didSet {
             self.delegate?.iCloudMetadataDidUpdate(self)
         }
     }
     
     /// A read only property indiciating whether or not the document currently exists in iCloud
-    public var iniCloud : Bool {
+    open var iniCloud : Bool {
         get {
             if let metadata = iCloudMetadata {
-                if let isInCloud = metadata.valueForAttribute(NSMetadataUbiquitousItemIsUploadedKey) as? Bool {
+                if let isInCloud = metadata.value(forAttribute: NSMetadataUbiquitousItemIsUploadedKey) as? Bool {
                     return isInCloud
                 }
                 
@@ -46,10 +46,10 @@ public class StormcloudMetadata: NSObject {
     }
     
     /// A read only property indicating that returns true when the document is currently downloading
-    public var isDownloaded : Bool {
+    open var isDownloaded : Bool {
         get {
             if let metadata = iCloudMetadata {
-                if let downloadingStatus = metadata.valueForAttribute(NSMetadataUbiquitousItemDownloadingStatusKey) as? String {
+                if let downloadingStatus = metadata.value(forAttribute: NSMetadataUbiquitousItemDownloadingStatusKey) as? String {
                     return downloadingStatus == NSMetadataUbiquitousItemDownloadingStatusCurrent
                 }
             }
@@ -58,10 +58,10 @@ public class StormcloudMetadata: NSObject {
     }
 
     /// A read only property indicating that returns true when the document is currently downloading
-    public var isDownloading : Bool {
+    open var isDownloading : Bool {
         get {
             if let metadata = iCloudMetadata {
-                if let isDownloading = metadata.valueForAttribute(NSMetadataUbiquitousItemIsDownloadingKey) as? Bool {
+                if let isDownloading = metadata.value(forAttribute: NSMetadataUbiquitousItemIsDownloadingKey) as? Bool {
                     return isDownloading
                 }
             }
@@ -70,10 +70,10 @@ public class StormcloudMetadata: NSObject {
     }
     
     /// A read only property that returns the percentage of the document that has downloaded
-    public var percentDownloaded : Double {
+    open var percentDownloaded : Double {
         get {
             if let metadata = iCloudMetadata {
-                if let downloaded = metadata.valueForAttribute(NSMetadataUbiquitousItemPercentDownloadedKey) as? Double {
+                if let downloaded = metadata.value(forAttribute: NSMetadataUbiquitousItemPercentDownloadedKey) as? Double {
                     self.internalPercentDownloaded =  downloaded
                 }
             }
@@ -82,10 +82,10 @@ public class StormcloudMetadata: NSObject {
     }
     
     /// A read only property indicating that returns true when the document is currently uploading
-    public var isUploading : Bool {
+    open var isUploading : Bool {
         get {
             if let metadata = iCloudMetadata {
-                if let isUploading = metadata.valueForAttribute(NSMetadataUbiquitousItemIsUploadingKey) as? Bool {
+                if let isUploading = metadata.value(forAttribute: NSMetadataUbiquitousItemIsUploadingKey) as? Bool {
                     return isUploading
                 }
                 
@@ -95,10 +95,10 @@ public class StormcloudMetadata: NSObject {
     }
     
     /// A read only property that returns the percentage of the document that has uploaded
-    public var percentUploaded : Double {
+    open var percentUploaded : Double {
         get {
             if let metadata = iCloudMetadata {
-                if let uploaded = metadata.valueForAttribute(NSMetadataUbiquitousItemPercentUploadedKey) as? Double {
+                if let uploaded = metadata.value(forAttribute: NSMetadataUbiquitousItemPercentUploadedKey) as? Double {
                     self.internalPercentUploaded =  uploaded
                 }
             }
@@ -110,31 +110,27 @@ public class StormcloudMetadata: NSObject {
     var internalPercentDownloaded : Double = 0
     
     public override init() {
-        let dateComponents = NSCalendar.currentCalendar().components([.Year, .Month, .Day, .Hour, .Minute, .Second], fromDate: NSDate())
-        dateComponents.calendar = NSCalendar.currentCalendar()
-        dateComponents.timeZone = NSTimeZone(abbreviation: "UTC")
+        let dateComponents = NSCalendar.current.dateComponents([.year, .month, .day, .hour, .minute, .second], from: Date())
+        (dateComponents as NSDateComponents).calendar = NSCalendar.current
+        (dateComponents as NSDateComponents).timeZone = TimeZone(abbreviation: "UTC")
         
         StormcloudMetadata.dateFormatter.dateFormat = "yyyy-MM-dd HH-mm-ss"
 
-        self.device = UIDevice.currentDevice().model
-        if let date = dateComponents.date {
+        self.device = UIDevice.current.model
+        if let date = (dateComponents as NSDateComponents).date {
             self.date = date
         } else {
-            self.date = NSDate()
+            self.date = Date()
         }
         
         self.deviceUUID = StormcloudMetadata.getDeviceUUID()
-        let stringDate = StormcloudMetadata.dateFormatter.stringFromDate(self.date)
+        let stringDate = StormcloudMetadata.dateFormatter.string(from: self.date)
         self.filename = "\(stringDate)--\(self.device)--\(self.deviceUUID).json"
     }
     
     
-    public convenience init( fileURL : NSURL ) {
-        var path = ""
-        if let isPath = fileURL.lastPathComponent {
-           path = isPath
-        }
-        self.init(path : path)
+    public convenience init( fileURL : URL ) {
+        self.init(path : fileURL.lastPathComponent)
     }
     
 
@@ -143,21 +139,21 @@ public class StormcloudMetadata: NSObject {
 
         var filename = ""
         
-        var date  = NSDate()
+        var date  = Date()
         
-        var device = UIDevice.currentDevice().model
+        var device = UIDevice.current.model
         var deviceUUID = StormcloudMetadata.getDeviceUUID()
         
         filename = path
-        let components = path.componentsSeparatedByString("--")
+        let components = path.components(separatedBy: "--")
         
         if components.count > 2 {
-            if let newDate = StormcloudMetadata.dateFormatter.dateFromString(components[0]) {
+            if let newDate = StormcloudMetadata.dateFormatter.date(from: components[0]) {
                 date = newDate
             }
             
             device = components[1]
-            deviceUUID = components[2].stringByReplacingOccurrencesOfString(".json", withString: "")
+            deviceUUID = components[2].replacingOccurrences(of: ".json", with: "")
         }
         self.filename = filename
         self.device = device
@@ -171,13 +167,13 @@ public class StormcloudMetadata: NSObject {
      
      - returns: The device UUID as a string
      */
-    public class func getDeviceUUID() -> String {
+    open class func getDeviceUUID() -> String {
         let currentDeviceUUIDKey = "VTADocumentsManagerDeviceKey"
-        if let savedDevice = NSUserDefaults.standardUserDefaults().objectForKey(currentDeviceUUIDKey) as? String {
+        if let savedDevice = UserDefaults.standard.object(forKey: currentDeviceUUIDKey) as? String {
             return savedDevice
         } else {
-            let uuid = NSUUID().UUIDString
-            NSUserDefaults.standardUserDefaults().setObject(uuid, forKey: currentDeviceUUIDKey)
+            let uuid = UUID().uuidString
+            UserDefaults.standard.set(uuid, forKey: currentDeviceUUIDKey)
             return uuid
         }
     }
@@ -186,7 +182,7 @@ public class StormcloudMetadata: NSObject {
 // MARK: - NSCopying 
 
 extension StormcloudMetadata : NSCopying {
-    public func copyWithZone(zone: NSZone) -> AnyObject {
+    public func copy(with zone: NSZone?) -> Any {
         let backup = StormcloudMetadata(path : self.filename)
         return backup
     }

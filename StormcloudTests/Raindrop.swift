@@ -15,26 +15,26 @@ public enum RaindropType : String {
 }
 
 
-public enum ICECoreDataError : ErrorType {
-    case InvalidType
+public enum ICECoreDataError : Error {
+    case invalidType
 }
 
 @objc(Raindrop)
-public class Raindrop: NSManagedObject {
+open class Raindrop: NSManagedObject {
 
 // Insert code here to add functionality to your managed object subclass
 
-    public class func insertRaindropWithType(type : RaindropType, withCloud : Cloud, inContext context : NSManagedObjectContext ) throws -> Raindrop {
+    open class func insertRaindropWithType(_ type : RaindropType, withCloud : Cloud, inContext context : NSManagedObjectContext ) throws -> Raindrop {
         
-        if let drop1 = NSEntityDescription.insertNewObjectForEntityForName("Raindrop", inManagedObjectContext: context) as? Raindrop {
+        if let drop1 = NSEntityDescription.insertNewObject(forEntityName: "Raindrop", into: context) as? Raindrop {
             drop1.type = type.rawValue
             drop1.cloud = withCloud
-            drop1.colour = UIColor.redColor()
+            drop1.colour = UIColor.red
             drop1.timesFallen = 10
             drop1.raindropValue = NSDecimalNumber(string: "10.54")
             return drop1
         } else {
-            throw ICECoreDataError.InvalidType
+            throw ICECoreDataError.invalidType
         }
     }
     

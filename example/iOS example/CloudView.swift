@@ -11,7 +11,7 @@ import UIKit
 @IBDesignable
 class CloudView: UIView {
 
-    @IBInspectable var cloudColor : UIColor = UIColor.blueColor() {
+    @IBInspectable var cloudColor : UIColor = UIColor.blue {
         didSet {
 
             self.setNeedsDisplay()
@@ -30,41 +30,41 @@ class CloudView: UIView {
     
     func setup() {
         self.translatesAutoresizingMaskIntoConstraints = false
-        self.backgroundColor = UIColor.clearColor()
+        self.backgroundColor = UIColor.clear
     }
     
     // Only override drawRect: if you perform custom drawing.
     // An empty implementation adversely affects performance during animation.
-    override func drawRect(rect: CGRect) {
+    override func draw(_ rect: CGRect) {
         // Drawing code
         
-        if CGRectIsEmpty(rect) {
+        if rect.isEmpty {
             return
         }
 
         self.cloudColor.setFill()
         
-        let centerX = CGRectGetMidX(self.bounds)
-        let centerY = CGRectGetMidY(self.bounds)
+        let centerX = self.bounds.midX
+        let centerY = self.bounds.midY
         
 //        let quarterX = centerX / 2
 //        let quarterY = centerY / 2
         
-        let width = CGRectGetWidth(self.bounds)
+        let width = self.bounds.width
 //        let height = CGRectGetHeight(self.bounds)
         
         let thirdX = width / 3
 //        let thirdY = height / 3
         
-        let bottomLeftRect = CGRectMake(0, centerY, thirdX, centerY)
-        let bottomLeftPath = UIBezierPath(ovalInRect: bottomLeftRect)
+		let bottomLeftRect = CGRect(x: 0, y: centerY, width: thirdX, height: centerY)
+        let bottomLeftPath = UIBezierPath(ovalIn: bottomLeftRect)
         bottomLeftPath.fill()
 
-        let bottomRightRect = CGRectMake(thirdX * 2, centerY, thirdX, centerY)
-        let bottomRightPath = UIBezierPath(ovalInRect: bottomRightRect)
+		let bottomRightRect = CGRect(x: thirdX * 2, y: centerY, width: thirdX, height: centerY)
+        let bottomRightPath = UIBezierPath(ovalIn: bottomRightRect)
         bottomRightPath.fill()
         
-        let bottomRect = CGRectMake(thirdX / 2, centerY, thirdX * 2, centerY)
+		let bottomRect = CGRect(x: thirdX / 2, y: centerY, width: thirdX * 2, height: centerY)
         let bottomRectPath = UIBezierPath(rect: bottomRect)
         bottomRectPath.fill()
         
@@ -73,8 +73,8 @@ class CloudView: UIView {
         
         let circleSize = thirdX * 2
         
-        let centerCircle = CGRectMake(centerX - (circleSize / 2), centerY - (circleSize / 2), circleSize, circleSize)
-        let centerCirclePath = UIBezierPath(ovalInRect: centerCircle)
+		let centerCircle = CGRect(x: centerX - (circleSize / 2), y: centerY - (circleSize / 2), width: circleSize, height: circleSize)
+        let centerCirclePath = UIBezierPath(ovalIn: centerCircle)
         centerCirclePath.fill()
         
 //        

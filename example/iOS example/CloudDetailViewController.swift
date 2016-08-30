@@ -39,7 +39,7 @@ class CloudDetailViewController: UIViewController {
         self.dynamicAnimator = UIDynamicAnimator(referenceView: self.view)
         self.dynamicAnimator?.addBehavior(self.gravityBehaviour)
         
-        self.addRaindropButton.enabled = false
+        self.addRaindropButton.isEnabled = false
         
     }
 
@@ -56,8 +56,8 @@ extension CloudDetailViewController {
     func setupViews() {
         var count = 0
         for value in RaindropType.allValues {
-            self.raindropType.insertSegmentWithTitle(value.rawValue, atIndex: count, animated: false)
-            count++
+            self.raindropType.insertSegment(withTitle: value.rawValue, at: count, animated: false)
+            count += 1
         }
         
         self.cloudNameTextField.delegate = self
@@ -67,7 +67,7 @@ extension CloudDetailViewController {
         }
         
             if let didRain = cloud.didRain?.boolValue {
-                self.cloudImage.cloudColor = didRain ? UIColor.lightGrayColor() : UIColor.darkGrayColor()
+                self.cloudImage.cloudColor = didRain ? UIColor.lightGray : UIColor.darkGray
             }
 
         
@@ -133,7 +133,7 @@ extension CloudDetailViewController {
             return
         }
         
-        self.addRaindropButton.enabled = true
+        self.addRaindropButton.isEnabled = true
         
         let subviews = self.view.subviews.filter() { $0.tag >= 100 }
         
@@ -147,21 +147,21 @@ extension CloudDetailViewController {
         
         let type = RaindropType.allValues[sender.selectedSegmentIndex]
         
-        var size = CGRectZero
+        var size = CGRect.zero
         switch type {
         case .Drizzle:
-            size = CGRectMake(0, 0, 5, 9)
+			size = CGRect(x: 0, y: 0, width: 5, height: 9)
             self.gravityBehaviour.magnitude = 1.0
         case .Light:
-            size = CGRectMake(0, 0, 10, 18)
+            size = CGRect(x: 0, y: 0, width: 10, height: 18)
             self.gravityBehaviour.magnitude = 2.0
         case .Heavy :
-            size = CGRectMake(0, 0, 15, 27)
+            size = CGRect(x: 0, y: 0, width: 15, height: 27)
                         self.gravityBehaviour.magnitude = 3.0
         }
         
-        let minLeading = CGFloat(CGRectGetMinX(self.cloudImage.frame))
-        let maxLeading = CGFloat(CGRectGetMaxX(self.cloudImage.frame)) - size.width
+        let minLeading = CGFloat(self.cloudImage.frame.minX)
+        let maxLeading = CGFloat(self.cloudImage.frame.maxX) - size.width
         let distance = maxLeading - minLeading
         
         func getRandomPosition() -> CGFloat {
@@ -181,26 +181,26 @@ extension CloudDetailViewController {
             
             let yConstant : CGFloat = 30
             
-            let xConstraint = NSLayoutConstraint(item: raindropview, attribute: .Leading, relatedBy: .Equal, toItem: self.view, attribute: .Leading, multiplier: 1.0, constant: getRandomPosition())
-            let yConstraint = NSLayoutConstraint(item: raindropview, attribute: .CenterY, relatedBy: .Equal, toItem: self.cloudImage, attribute: .CenterY, multiplier: 1.0, constant: yConstant)
+            let xConstraint = NSLayoutConstraint(item: raindropview, attribute: .leading, relatedBy: .equal, toItem: self.view, attribute: .leading, multiplier: 1.0, constant: getRandomPosition())
+            let yConstraint = NSLayoutConstraint(item: raindropview, attribute: .centerY, relatedBy: .equal, toItem: self.cloudImage, attribute: .centerY, multiplier: 1.0, constant: yConstant)
             
             self.itemConstraints[raindropview.tag] = [xConstraint, yConstraint]
             
-            raindropview.widthAnchor.constraintEqualToConstant(size.width).active = true
-            raindropview.heightAnchor.constraintEqualToConstant(size.height).active = true
+            raindropview.widthAnchor.constraint(equalToConstant: size.width).isActive = true
+            raindropview.heightAnchor.constraint(equalToConstant: size.height).isActive = true
 
             self.view.addConstraint(xConstraint)
             self.view.addConstraint(yConstraint)
             
-            let dynamicItem = DynamicHub(bounds : CGRectMake(0, 0, size.width, size.height))
-            dynamicItem.center = CGPointMake(self.cloudImage.center.x, self.cloudImage.center.y + yConstant)
+            let dynamicItem = DynamicHub(bounds : CGRect(x: 0, y: 0, width: size.width, height: size.height))
+			dynamicItem.center = CGPoint(x: self.cloudImage.center.x, y: self.cloudImage.center.y + yConstant)
             
             self.dynamicItems[raindropview.tag] = dynamicItem
 
-            let maxDelay : NSTimeInterval = 0.5
+            let maxDelay : TimeInterval = 0.5
             let randomPos = CGFloat(Float(arc4random()) / Float(UINT32_MAX))
             
-            self.performSelector(Selector("addDynamicItem:"), withObject: dynamicItem, afterDelay: NSTimeInterval(maxDelay * NSTimeInterval(randomPos)) + NSTimeInterval(i) * 0.2)
+            self.perform(Selector("addDynamicItem:"), with: dynamicItem, afterDelay: TimeInterval(maxDelay * TimeInterval(randomPos)) + TimeInterval(i) * 0.2)
             
 
             
@@ -209,7 +209,7 @@ extension CloudDetailViewController {
                 
                 let subviews = self.view.subviews.filter() { $0.tag >= 100 }
                 for subview in subviews {
-                    if let dynamicItem = self.dynamicItems[subview.tag], constraints = self.itemConstraints[subview.tag] where constraints.count == 2 {
+                    if let dynamicItem = self.dynamicItems[subview.tag], let constraints = self.itemConstraints[subview.tag] , constraints.count == 2 {
                         
                         if subview.tag == 100 {
                             let view = self.view.viewWithTag(10)
@@ -227,12 +227,12 @@ extension CloudDetailViewController {
                             self.gravityBehaviour.addItem(dynamicItem)
                         } else {
                             
-                            constraints[1].constant = dynamicItem.center.y - CGRectGetMidY(self.cloudImage.frame)
+                            constraints[1].constant = dynamicItem.center.y - self.cloudImage.frame.midY
                         }
                     }
                 }
             }
-            i++
+            i += 1
         }
     }
     
@@ -255,7 +255,7 @@ extension CloudDetailViewController {
             print("Couldn't create raindrop")
         }
         
-        self.selectedRaindropType(self.raindropType)
+        self.selectedRaindropType(sender: self.raindropType)
     }
     
     
@@ -266,13 +266,13 @@ extension CloudDetailViewController {
     
     @IBAction func dismissVC(sender : UIBarButtonItem ) {
         self.rollbackChanges()
-        self.presentingViewController?.dismissViewControllerAnimated(true, completion: nil)
+        self.presentingViewController?.dismiss(animated: true, completion: nil)
     }
     
     @IBAction func saveAndDismiss(sender : UIBarButtonItem ) {
 
         self.saveChanges()
-        self.presentingViewController?.dismissViewControllerAnimated(true, completion: nil)
+        self.presentingViewController?.dismiss(animated: true, completion: nil)
     }
 }
 
@@ -292,8 +292,8 @@ extension CloudDetailViewController : StormcloudFetchedResultsControllerDetailVC
 
 extension CloudDetailViewController {
     
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        if let tagsVC = segue.destinationViewController as? TagsTableViewController {
+    func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        if let tagsVC = segue.destination as? TagsTableViewController {
             tagsVC.cloud = self.currentCloud
         }
     }

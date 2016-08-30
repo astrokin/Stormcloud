@@ -12,7 +12,7 @@ import Stormcloud
 
 class DetailViewController: UIViewController {
     
-    var itemURL : NSURL?
+    var itemURL : URL?
     var document : BackupDocument?
     var backupManager : Stormcloud?
     var stack  : CoreDataStack?
@@ -26,28 +26,29 @@ class DetailViewController: UIViewController {
         // Do any additional setup after loading the view.
         
         if let url = self.itemURL {
-            self.document = BackupDocument(fileURL: url)
+            self.document = BackupDocument(fileURL: url as URL)
             if let doc = self.document {
-                doc.openWithCompletionHandler({ (success) -> Void in
-                    dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                doc.open(completionHandler: { (success) -> Void in
+					
+					DispatchQueue.main.async {
                         self.activityIndicator.stopAnimating()
                         if let dict = doc.objectsToBackup as? [String : AnyObject] {
                             self.detailLabel.text = "Objects backed up: \(dict.count)"
                         }
                         
-                    })
+                    }
                 })
             }
         }
     }
     
-    override func viewDidAppear(animated: Bool) {
+    override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
     }
     
-    override func viewWillDisappear(animated: Bool) {
+    override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        self.document?.closeWithCompletionHandler(nil)
+        self.document?.close(completionHandler: nil)
     }
     
     
@@ -58,12 +59,12 @@ class DetailViewController: UIViewController {
     
     
     @IBAction func restoreObject(sender : UIButton) {
-        if let context = self.stack?.managedObjectContext, doc = self.document {
+        if let context = self.stack?.managedObjectContext, let doc = self.document {
             self.activityIndicator.startAnimating()
-            self.view.userInteractionEnabled = false
+            self.view.isUserInteractionEnabled = false
             self.backupManager?.restoreCoreDataBackup(withDocument: doc, toContext: context , completion: { (error) -> () in
                 self.activityIndicator.stopAnimating()
-                self.view.userInteractionEnabled = true
+                self.view.isUserInteractionEnabled = true
             
                 let message : String
                 if let _ = error {
@@ -72,9 +73,9 @@ class DetailViewController: UIViewController {
                     message = "Successfully"
                 }
                 
-                let avc = UIAlertController(title: "Completed!", message: message, preferredStyle: .Alert)
-                avc.addAction(UIAlertAction(title: "OK", style: .Cancel, handler: nil))
-                self.presentViewController(avc, animated: true, completion: nil)
+                let avc = UIAlertController(title: "Completed!", message: message, preferredStyle: .alert)
+                avc.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
+                self.present(avc, animated: true, completion: nil)
             
             })
         }

@@ -216,6 +216,7 @@
 					F48421331BDCD42D00C98567 = {
 						CreatedOnToolsVersion = 7.1;
 						DevelopmentTeam = 52T262DA8V;
+						LastSwiftMigration = 0800;
 						SystemCapabilities = {
 							com.apple.iCloud = {
 								enabled = 1;
@@ -413,6 +414,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.voyagetravelapps.Stormcloud.iOS-example";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
@@ -428,6 +430,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.voyagetravelapps.Stormcloud.iOS-example";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};

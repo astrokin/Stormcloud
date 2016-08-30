@@ -12,8 +12,8 @@ import UIKit
 public class DynamicHub: NSObject, UIDynamicItem {
     
     @objc public let bounds : CGRect
-    @objc public var center : CGPoint = CGPointZero
-    @objc public var transform : CGAffineTransform = CGAffineTransformIdentity
+    @objc public var center : CGPoint = CGPoint.zero
+    @objc public var transform : CGAffineTransform = CGAffineTransform.identity
     
     public init(bounds : CGRect ) {
         self.bounds = bounds
@@ -31,6 +31,6 @@ extension CGFloat {
         let rads =  self.degreesToRads() - CGFloat( M_PI / 2)
         let x = rect.size.height / 2 * CGFloat(cos(rads))
         let y = rect.size.height / 2 * CGFloat(sin(rads))
-        return CGPointMake(x + (rect.size.height / 2) + rect.origin.x, y + (rect.size.height / 2) + rect.origin.x)
+		return CGPoint(x: x + (rect.size.height / 2) + rect.origin.x, y: y + (rect.size.height / 2) + rect.origin.x)
     }
 }

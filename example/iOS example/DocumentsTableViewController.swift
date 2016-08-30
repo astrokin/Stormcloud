@@ -12,10 +12,10 @@ import Stormcloud
 class DocumentsTableViewController: UITableViewController {
 
     
-    let dateFormatter = NSDateFormatter()
+    let dateFormatter = DateFormatter()
     var documentsManager : Stormcloud!
     
-    let numberFormatter = NSNumberFormatter()
+    let numberFormatter = NumberFormatter()
     
     var stack : CoreDataStack?
     
@@ -33,10 +33,10 @@ class DocumentsTableViewController: UITableViewController {
         self.tableView.reloadData()
         // End
         
-        self.iCloudSwitch.on = self.documentsManager.isUsingiCloud
+        self.iCloudSwitch.isOn = self.documentsManager.isUsingiCloud
     }
 
-    override func viewWillAppear(animated: Bool) {
+    override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         self.documentsManager.deleteItemsOverLimit { (error) -> () in
             if error != nil {
@@ -46,7 +46,7 @@ class DocumentsTableViewController: UITableViewController {
         }
     }
     
-    override func viewDidAppear(animated: Bool) {
+    override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
 //        self.configureDocuments()
     }
@@ -58,23 +58,23 @@ class DocumentsTableViewController: UITableViewController {
 
     // MARK: - Table view data source
 
-    override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+    func numberOfSectionsInTableView(tableView: UITableView) -> Int {
         return 1
     }
 
-    override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return self.documentsManager.metadataList.count
     }
 
-    override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier("BackupTableViewCell", forIndexPath: indexPath)
+    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "BackupTableViewCell", for: indexPath as IndexPath)
 
         // MARK: - To Copy
         let data = self.documentsManager.metadataList[indexPath.row]
         data.delegate = self
         // End
         
-        self.configureTableViewCell(cell, withMetadata: data)
+		self.configureTableViewCell(tvc: cell, withMetadata: data)
         return cell
     }
     
@@ -82,21 +82,21 @@ class DocumentsTableViewController: UITableViewController {
     func configureTableViewCell( tvc : UITableViewCell, withMetadata data: StormcloudMetadata ) {
         
 
-        dateFormatter.dateStyle = .ShortStyle
-        dateFormatter.timeStyle = .ShortStyle
-        dateFormatter.timeZone = NSTimeZone(abbreviation: "UTC")
-        var text = dateFormatter.stringFromDate(data.date)
+        dateFormatter.dateStyle = .short
+        dateFormatter.timeStyle = .short
+        dateFormatter.timeZone = TimeZone(abbreviation: "UTC")
+        var text = dateFormatter.string(from: data.date)
         
         if self.documentsManager.isUsingiCloud {
             
             if data.isDownloading {
-                text.appendContentsOf(" ⏬ \(self.numberFormatter.stringFromNumber(data.percentDownloaded / 100))%")
+				text.append(" ⏬ \(self.numberFormatter.string(from: NSNumber(value: data.percentDownloaded / 100)))%")
             } else if data.iniCloud {
-                text.appendContentsOf(" ☁️")
+                text.append(" ☁️")
             } else if data.isUploading {
                 
-                self.numberFormatter.numberStyle = NSNumberFormatterStyle.PercentStyle
-                text.appendContentsOf(" ⏫ \(self.numberFormatter.stringFromNumber(data.percentUploaded / 100)!)")
+                self.numberFormatter.numberStyle = NumberFormatter.Style.percent
+				text.append(" ⏫ \(self.numberFormatter.string(from: NSNumber(value: data.percentUploaded / 100 ))!)")
             }
             
         }
@@ -106,8 +106,8 @@ class DocumentsTableViewController: UITableViewController {
 
 
     // Override to support editing the table view.
-    override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
-        if editingStyle == .Delete {
+    func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
+        if editingStyle == .delete {
             
             // MARK: - To Copy
             
@@ -116,17 +116,17 @@ class DocumentsTableViewController: UITableViewController {
                 
                 if let _ = error {
                     
-                    let alert = UIAlertController(title: "Couldn't delete item!", message: "Error", preferredStyle: .Alert)
-                    alert.addAction(UIAlertAction(title: "OK", style: .Cancel, handler: { (action) -> Void in
+                    let alert = UIAlertController(title: "Couldn't delete item!", message: "Error", preferredStyle: .alert)
+                    alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: { (action) -> Void in
                     }))
-                    self.presentViewController(alert, animated: true, completion: nil)
+                    self.present(alert, animated: true, completion: nil)
                     
                 }
                 
             })
 
             // End
-        } else if editingStyle == .Insert {
+        } else if editingStyle == .insert {
             // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
         }    
     }
@@ -137,13 +137,13 @@ class DocumentsTableViewController: UITableViewController {
 extension DocumentsTableViewController {
 
     func showAlertView(title : String, message : String ) {
-        let alertViewController = UIAlertController(title: title, message: message, preferredStyle: UIAlertControllerStyle.Alert)
+        let alertViewController = UIAlertController(title: title, message: message, preferredStyle: UIAlertControllerStyle.alert)
         
-        let action = UIAlertAction(title: "OK!", style: .Cancel, handler: { (alertAction) -> Void in
+        let action = UIAlertAction(title: "OK!", style: .cancel, handler: { (alertAction) -> Void in
             
         })
         alertViewController.addAction(action)
-        self.presentViewController(alertViewController, animated: true, completion: nil)
+        self.present(alertViewController, animated: true, completion: nil)
         
     }
     
@@ -153,42 +153,44 @@ extension DocumentsTableViewController {
 // MARK: - StormcloudDelegate
 
 extension DocumentsTableViewController : StormcloudDelegate {
+
     
-    func metadataListDidAddItemsAtIndexes(addedItems: NSIndexSet?, andDeletedItemsAtIndexes deletedItems: NSIndexSet?) {
+    func metadataListDidAddItemsAtIndexes(_ addedItems: IndexSet?, andDeletedItemsAtIndexes deletedItems: IndexSet?) {
         
         self.tableView.beginUpdates()
         
         if let didAddItems = addedItems {
-            var indexPaths : [NSIndexPath] = []
+            var indexPaths : [IndexPath] = []
             for additionalItems in didAddItems {
-                indexPaths.append(NSIndexPath(forRow: additionalItems, inSection: 0))
+                indexPaths.append(IndexPath(row: additionalItems, section: 0))
             }
-            self.tableView.insertRowsAtIndexPaths(indexPaths, withRowAnimation: .Automatic)
+            self.tableView.insertRows(at: indexPaths as [IndexPath], with: .automatic)
         }
         
         if let didDeleteItems = deletedItems {
-            var indexPaths : [NSIndexPath] = []
+            var indexPaths : [IndexPath] = []
             for deletedItems in didDeleteItems {
-                indexPaths.append(NSIndexPath(forRow: deletedItems, inSection: 0))
+                indexPaths.append(IndexPath(row: deletedItems, section: 0))
             }
-            self.tableView.deleteRowsAtIndexPaths(indexPaths, withRowAnimation: .Automatic)
+            self.tableView.deleteRows(at: indexPaths as [IndexPath], with: .automatic)
         }
         self.tableView.endUpdates()
     }
     
     
-    func metadataListDidChange(manager: Stormcloud) {
+    func metadataListDidChange(_ manager: Stormcloud) {
 //        self.configureDocuments()
     }
 }
 
 
 extension DocumentsTableViewController : StormcloudMetadataDelegate {
-    func iCloudMetadataDidUpdate(metadata: StormcloudMetadata) {
-        if let index = self.documentsManager.metadataList.indexOf(metadata) {
-            if let tvc = self.tableView.cellForRowAtIndexPath(NSIndexPath(forRow: index, inSection: 0)) {
-                
-                self.configureTableViewCell(tvc, withMetadata: metadata)
+    func iCloudMetadataDidUpdate(_ metadata: StormcloudMetadata) {
+        if let index = self.documentsManager.metadataList.index(of: metadata) {
+			let ip = IndexPath(row: index, section: 0)
+			if let tvc = self.tableView.cellForRow(at: ip) {
+				
+				self.configureTableViewCell(tvc: tvc, withMetadata: metadata)
             }
         }
     }
@@ -199,8 +201,8 @@ extension DocumentsTableViewController : StormcloudMetadataDelegate {
 // MARK: - Segue
 
 extension DocumentsTableViewController {
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        if let dvc = segue.destinationViewController as? DetailViewController, tvc = self.tableView.indexPathForSelectedRow {
+    func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        if let dvc = segue.destination as? DetailViewController, let tvc = self.tableView.indexPathForSelectedRow {
             
             let metadata = self.documentsManager.metadataList[tvc.row]
             dvc.itemURL = self.documentsManager.urlForItem(metadata)
@@ -218,13 +220,13 @@ extension DocumentsTableViewController {
 extension DocumentsTableViewController {
     
     @IBAction func enableiCloud( sender : UISwitch ) {
-        if sender.on {
-            self.documentsManager.enableiCloudShouldMoveLocalDocumentsToiCloud(true) { (error) -> Void in
+        if sender.isOn {
+            _ = self.documentsManager.enableiCloudShouldMoveLocalDocumentsToiCloud(true) { (error) -> Void in
                 
                 if let hasError = error {
-                    sender.on = false
+                    sender.isOn = false
                     if hasError == StormcloudError.iCloudUnavailable {
-                        self.showAlertView("iCloud Unavailable", message: "Couldn't access iCloud. Are you logged in?")
+						self.showAlertView(title: "iCloud Unavailable", message: "Couldn't access iCloud. Are you logged in?")
                     }
                 }
 
@@ -237,7 +239,7 @@ extension DocumentsTableViewController {
     }
     
     @IBAction func doneButton( sender : UIBarButtonItem ) {
-        self.presentingViewController?.dismissViewControllerAnimated(true, completion: nil)
+        self.presentingViewController?.dismiss(animated: true, completion: nil)
     }
     
     @IBAction func addButton( sender : UIBarButtonItem ) {
@@ -273,17 +275,17 @@ extension DocumentsTableViewController {
                     title = NSLocalizedString("Error!", comment: "The title of the alert box shown when there's an error")
                     
                     switch hasError {
-                    case .InvalidJSON:
+                    case .invalidJSON:
                         message = NSLocalizedString("There was an error creating the backup document", comment: "Shown when a backup document couldn't be created")
-                    case .BackupFileExists:
+                    case .backupFileExists:
                         message = NSLocalizedString("The backup filename already exists. Please wait a second and try again.", comment: "Shown when the file already exists on disk.")
-                    case .CouldntMoveDocumentToiCloud:
+                    case .couldntMoveDocumentToiCloud:
                         message = NSLocalizedString("Saved backup locally but couldn't move it to iCloud. Is your iCloud storage full?", comment: "Shown when the file could not be moved to iCloud.")
-                    case .CouldntSaveManagedObjectContext:
+                    case .couldntSaveManagedObjectContext:
                         message = NSLocalizedString("Error reading from database.", comment: "Shown when the database context could not be read.")
-                    case .CouldntSaveNewDocument:
+                    case .couldntSaveNewDocument:
                         message = NSLocalizedString("Could not create a new document.", comment: "Shown when a new document could not be created..")
-                    case .InvalidURL:
+                    case .invalidURL:
                         message = NSLocalizedString("Could not get a valid URL.", comment: "Shown when it couldn't get a URL either locally or in iCloud.")
                     default:
                         break
@@ -292,10 +294,10 @@ extension DocumentsTableViewController {
                 }
                 
                 if let _ = self.presentedViewController as? UIAlertController {
-                    self.dismissViewControllerAnimated(false, completion: nil)
+                    self.dismiss(animated: false, completion: nil)
                 }
 
-                self.showAlertView(title, message: message)
+                self.showAlertView(title: title, message: message)
                 
                 
             })

@@ -47,7 +47,7 @@ class SettingsViewController: UIViewController {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("updateDefaults:"), name: NSUbiquitousKeyValueStoreDidChangeExternallyNotification, object: nil)
+		NotificationCenter.default.addObserver(self, selector: #selector(updateDefaults), name: NSUbiquitousKeyValueStore.didChangeExternallyNotification, object: nil)
         
         self.prepareSettings()
     }
@@ -57,7 +57,7 @@ class SettingsViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
     
-    override func viewDidAppear(animated: Bool) {
+    override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         self.updateCount()
     }
@@ -74,7 +74,7 @@ class SettingsViewController: UIViewController {
     */
 
     deinit {
-        NSNotificationCenter.defaultCenter().removeObserver(self)
+        NotificationCenter.default.removeObserver(self)
     }
     
 }
@@ -86,15 +86,15 @@ extension SettingsViewController {
     
     func prepareSettings() {
         
-        settingsSwitch1.on = NSUserDefaults.standardUserDefaults().boolForKey(ICEDefaultsKeys.Setting1.rawValue)
-        settingsSwitch2.on = NSUserDefaults.standardUserDefaults().boolForKey(ICEDefaultsKeys.Setting2.rawValue)
-        settingsSwitch3.on = NSUserDefaults.standardUserDefaults().boolForKey(ICEDefaultsKeys.Setting3.rawValue)
+        settingsSwitch1.isOn = UserDefaults.standard.bool(forKey: ICEDefaultsKeys.Setting1.rawValue)
+        settingsSwitch2.isOn = UserDefaults.standard.bool(forKey: ICEDefaultsKeys.Setting2.rawValue)
+        settingsSwitch3.isOn = UserDefaults.standard.bool(forKey: ICEDefaultsKeys.Setting3.rawValue)
         
-        if let text = NSUserDefaults.standardUserDefaults().stringForKey(ICEDefaultsKeys.textValue.rawValue) {
+        if let text = UserDefaults.standard.string(forKey: ICEDefaultsKeys.textValue.rawValue) {
             self.textField.text = text
         }
         
-        self.valueStepper.value = Double(NSUserDefaults.standardUserDefaults().integerForKey(ICEDefaultsKeys.stepperValue.rawValue))
+        self.valueStepper.value = Double(UserDefaults.standard.integer(forKey: ICEDefaultsKeys.stepperValue.rawValue))
         self.valueLabel.text = "Add Clouds: \(Int(valueStepper.value))"
     }
 }
@@ -104,10 +104,10 @@ extension SettingsViewController {
     @IBAction func addNewClouds( sender : UIButton ) {
         if let adder = self.cloudAdder, let stack = self.stack {
             let clouds = stack.performRequestForTemplate(ICEFetchRequests.CloudFetch)
-            let total = Int(self.valueStepper.value) ?? 1
+            let total = Int(self.valueStepper.value)
             let runningTotal = clouds.count + 1
-            for var i = 0; i < total; i++ {
-                adder.addCloudWithNumber(runningTotal + i, addRaindrops : false)
+            for i in 0 ..< total {
+                adder.addCloudWithNumber(number: runningTotal + i, addRaindrops : false)
             }
             self.updateCount()
             
@@ -118,55 +118,55 @@ extension SettingsViewController {
         
         var key : String?
         if let senderSwitch = sender.accessibilityLabel {
-            if senderSwitch.containsString("1") {
+            if senderSwitch.contains("1") {
                 key = ICEDefaultsKeys.Setting1.rawValue
-            } else if senderSwitch.containsString("2") {
+            } else if senderSwitch.contains("2") {
                 key = ICEDefaultsKeys.Setting2.rawValue
-            } else if senderSwitch.containsString("3") {
+            } else if senderSwitch.contains("3") {
                 key = ICEDefaultsKeys.Setting3.rawValue
             }
         }
 
         if let hasKey = key {
-            NSUserDefaults.standardUserDefaults().setBool(sender.on, forKey: hasKey)
+            UserDefaults.standard.set(sender.isOn, forKey: hasKey)
         }
         
     }
     
     @IBAction func stepperChanged( sender : UIStepper ) {
         self.valueLabel.text = "Add Clouds: \(Int(sender.value))"
-        NSUserDefaults.standardUserDefaults().setInteger(Int(sender.value), forKey: ICEDefaultsKeys.stepperValue.rawValue)
+        UserDefaults.standard.set(Int(sender.value), forKey: ICEDefaultsKeys.stepperValue.rawValue)
     }
     
     @IBAction func dismissCloudVC(sender : UIBarButtonItem ) {
-        self.dismissViewControllerAnimated(true, completion: nil)
+        self.dismiss(animated: true, completion: nil)
     }
     
 }
 
 extension SettingsViewController {
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+    func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         
-        if let navController = segue.destinationViewController as? UINavigationController, documentsVC = navController.viewControllers.first as? DocumentsTableViewController {
+        if let navController = segue.destination as? UINavigationController, let documentsVC = navController.viewControllers.first as? DocumentsTableViewController {
             documentsVC.stack = self.stack
             documentsVC.documentsManager = self.backupManager
         }
         
 
-        if let navController = segue.destinationViewController as? UINavigationController, cloudVC = navController.viewControllers.first as? StormcloudFetchedResultsController {
+        if let navController = segue.destination as? UINavigationController, let cloudVC = navController.viewControllers.first as? StormcloudFetchedResultsController {
             
             if let context = self.stack?.managedObjectContext {
-                let fetchRequest = NSFetchRequest(entityName: "Cloud")
+                let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "Cloud")
                 fetchRequest.sortDescriptors = [NSSortDescriptor(key: "order", ascending: true)]
                 fetchRequest.fetchBatchSize = 20
                 cloudVC.frc = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: context, sectionNameKeyPath: nil, cacheName: nil)
             }
             
-            cloudVC.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Done, target: self, action: Selector("dismissCloudVC:"))
+			cloudVC.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(SettingsViewController.dismissCloudVC))
             
             cloudVC.enableDelete = true
-            cloudVC.cellCallback = { (tableView: UITableView, object: NSManagedObject, ip : NSIndexPath) -> UITableViewCell in
-                guard let cell = tableView.dequeueReusableCellWithIdentifier("CloudTableViewCell") else {
+            cloudVC.cellCallback = { (tableView: UITableView, object: NSManagedObject, ip : IndexPath) -> UITableViewCell in
+                guard let cell = tableView.dequeueReusableCell(withIdentifier: "CloudTableViewCell") else {
                     return UITableViewCell()
                 }
                 if let cloudObject = object as? Cloud {
@@ -182,14 +182,14 @@ extension SettingsViewController {
 
 extension SettingsViewController : UITextFieldDelegate {
     
-    func textFieldShouldReturn(textField: UITextField) -> Bool {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()        
         return true;
     }
     
     
-    func textFieldDidEndEditing(textField: UITextField) {
-        NSUserDefaults.standardUserDefaults().setObject(textField.text, forKey: ICEDefaultsKeys.textValue.rawValue)
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        UserDefaults.standard.set(textField.text, forKey: ICEDefaultsKeys.textValue.rawValue)
     }
     
 }

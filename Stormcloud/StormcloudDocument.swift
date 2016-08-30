@@ -8,15 +8,15 @@
 
 import UIKit
 
-public class BackupDocument: UIDocument {
+open class BackupDocument: UIDocument {
 
-    public var backupMetadata : StormcloudMetadata?
-    public var objectsToBackup : AnyObject?
+    open var backupMetadata : StormcloudMetadata?
+    open var objectsToBackup : Any?
     
-    public override func loadFromContents(contents: AnyObject, ofType typeName: String?) throws {
-        if let data = contents as? NSData {
+    open override func load(fromContents contents: Any, ofType typeName: String?) throws {
+        if let data = contents as? Data {
             do {
-                let json = try NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions.AllowFragments) as? [String : AnyObject]
+                let json = try JSONSerialization.jsonObject(with: data, options: JSONSerialization.ReadingOptions.allowFragments) as? [String : AnyObject]
                 if let isJson = json {
                     self.objectsToBackup = isJson
                     self.backupMetadata = StormcloudMetadata(fileURL: self.fileURL)
@@ -28,19 +28,19 @@ public class BackupDocument: UIDocument {
         }
     }
     
-    public override func contentsForType(typeName: String) throws -> AnyObject {
-        var data = NSData()
+    open override func contents(forType typeName: String) throws -> Any {
+        var data = Data()
         
         if let hasData = self.objectsToBackup {
             do {
-                let jsonOptions : NSJSONWritingOptions
+                let jsonOptions : JSONSerialization.WritingOptions
                 if StormcloudEnvironment.VerboseLogging.isEnabled() {
-                    jsonOptions = .PrettyPrinted
+                    jsonOptions = .prettyPrinted
                 } else {
-                    jsonOptions = NSJSONWritingOptions()
+                    jsonOptions = JSONSerialization.WritingOptions()
                 }
                 
-                data = try NSJSONSerialization.dataWithJSONObject(hasData, options: jsonOptions)
+                data = try JSONSerialization.data(withJSONObject: hasData, options: jsonOptions)
             } catch {
                 print("Error writing JSON")
             }

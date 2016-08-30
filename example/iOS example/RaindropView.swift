@@ -12,7 +12,7 @@ import UIKit
 @IBDesignable
 class RaindropView: UIView {
     
-    @IBInspectable var raindropColor : UIColor = UIColor.blueColor() {
+    @IBInspectable var raindropColor : UIColor = UIColor.blue {
         didSet {
             self.setNeedsDisplay()
         }
@@ -30,23 +30,23 @@ class RaindropView: UIView {
     
     func setup() {
         self.translatesAutoresizingMaskIntoConstraints = false
-        self.backgroundColor = UIColor.clearColor()
+        self.backgroundColor = UIColor.clear
     }
     
     
     // Only override drawRect: if you perform custom drawing.
     // An empty implementation adversely affects performance during animation.
-    override func drawRect(rect: CGRect) {
+    override func draw(_ rect: CGRect) {
         // Drawing code
         
         let roundedCorner = CGFloat(2)
         
         
         
-        let centerX = CGRectGetMidX(self.bounds)
+        let centerX = self.bounds.midX
 //        let centerY = CGRectGetMidY(self.bounds)
-        let width = CGRectGetMaxX(self.bounds)
-        let height = CGRectGetMaxY(self.bounds)
+        let width = self.bounds.maxX
+        let height = self.bounds.maxY
         
         let arcCenterPoint = height - centerX
         
@@ -54,11 +54,11 @@ class RaindropView: UIView {
         
         let path = UIBezierPath()
         
-        path.addArcWithCenter(CGPoint(x: centerX, y: roundedCorner), radius: roundedCorner, startAngle: CGFloat(-180).degreesToRads(), endAngle: CGFloat(0).degreesToRads(), clockwise: true)
-        path.addLineToPoint(CGPoint(x: width, y: arcCenterPoint))
+        path.addArc(withCenter: CGPoint(x: centerX, y: roundedCorner), radius: roundedCorner, startAngle: CGFloat(-180).degreesToRads(), endAngle: CGFloat(0).degreesToRads(), clockwise: true)
+        path.addLine(to: CGPoint(x: width, y: arcCenterPoint))
 //
-        path.addArcWithCenter(CGPoint(x: centerX, y: arcCenterPoint), radius: centerX, startAngle: CGFloat(0).degreesToRads(), endAngle: CGFloat(180).degreesToRads(), clockwise: true)
-        path.closePath()
+        path.addArc(withCenter: CGPoint(x: centerX, y: arcCenterPoint), radius: centerX, startAngle: CGFloat(0).degreesToRads(), endAngle: CGFloat(180).degreesToRads(), clockwise: true)
+        path.close()
 
         self.raindropColor.setFill()
         path.fill()

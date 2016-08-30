@@ -19,19 +19,19 @@ import Foundation
  - **CouldntDelete**:     The backup document was created but could not be moved to iCloud 
  - **iCloudUnavailable**:     The backup document was created but could not be moved to iCloud
  */
-public enum StormcloudError : Int, ErrorType {
-    case InvalidJSON = 100
-    case CouldntRestoreJSON
-    case InvalidURL
-    case BackupFileExists
-    case CouldntSaveManagedObjectContext
-    case CouldntSaveNewDocument
-    case CouldntMoveDocumentToiCloud
-    case CouldntDelete
+public enum StormcloudError : Int, Error {
+    case invalidJSON = 100
+    case couldntRestoreJSON
+    case invalidURL
+    case backupFileExists
+    case couldntSaveManagedObjectContext
+    case couldntSaveNewDocument
+    case couldntMoveDocumentToiCloud
+    case couldntDelete
     case iCloudUnavailable
-    case BackupInProgress
-    case RestoreInProgress
-    case CouldntOpenDocument
+    case backupInProgress
+    case restoreInProgress
+    case couldntOpenDocument
 
     
     func domain() -> String {
@@ -44,7 +44,7 @@ public enum StormcloudError : Int, ErrorType {
 
     func userInfo() -> [String : String]? {
         switch self {
-        case .CouldntMoveDocumentToiCloud:
+        case .couldntMoveDocumentToiCloud:
             return [NSLocalizedDescriptionKey : "Couldn't get valid iCloud and local documents directories"]
         default:
             return nil

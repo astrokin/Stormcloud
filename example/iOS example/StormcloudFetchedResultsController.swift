@@ -24,13 +24,13 @@ If your detail view controller conforms to the `VTAUtilitiesFetchedResultsContro
 public class StormcloudFetchedResultsController: UITableViewController {
 
     /// A callback to be used in the table view delegate's `tableView:cellForRowAtIndexPath:` method. Passes along the managed object from the Fetched Results Controller
-    public var cellCallback : ((tableView : UITableView, object : NSManagedObject, indexPath: NSIndexPath) -> UITableViewCell)?
+    public var cellCallback : ((_ tableView : UITableView, _ object : NSManagedObject, _ indexPath: IndexPath) -> UITableViewCell)?
     
     /// Whether to allow deletion of the rows
     public var enableDelete  = false
     
     /// The Fetched Results Controller to use.
-    public var frc : NSFetchedResultsController? {
+    public var frc : NSFetchedResultsController<NSFetchRequestResult>? {
         didSet {
             self.frc?.delegate = self
         }
@@ -48,7 +48,7 @@ public class StormcloudFetchedResultsController: UITableViewController {
         
         
         if enableDelete {
-            self.navigationItem.leftBarButtonItem = self.editButtonItem()
+            self.navigationItem.leftBarButtonItem = self.editButtonItem
         }
     }
 }
@@ -57,17 +57,17 @@ public class StormcloudFetchedResultsController: UITableViewController {
 
 extension StormcloudFetchedResultsController {
     
-    public override func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
+    public  func tableView(_ tableView: UITableView, canEditRowAt indexPath: NSIndexPath) -> Bool {
         return self.enableDelete
     }
     
-    public override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
+    public  func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: IndexPath) {
         switch editingStyle {
-        case .Delete :
-            if let frc = self.frc, object = frc.objectAtIndexPath(indexPath) as? NSManagedObject {
-                frc.managedObjectContext.deleteObject(object)
+        case .delete :
+			if let frc = self.frc, let object = frc.object(at: indexPath) as? NSManagedObject {
+                frc.managedObjectContext.delete(object)
             }
-        case .Insert, .None:
+        case .insert, .none:
             break
         }
     }
@@ -77,21 +77,21 @@ extension StormcloudFetchedResultsController {
 // MARK: - UITableViewDataSource
 
 extension StormcloudFetchedResultsController  {
-    public override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+    public  func numberOfSectionsInTableView(tableView: UITableView) -> Int {
         return frc?.sections?.count ?? 1
     }
     
-    public override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    public  func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if let sectionInfo = frc?.sections?[section] {
             return sectionInfo.numberOfObjects
         }
         return 0
     }
     
-    public override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+    public  func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: IndexPath) -> UITableViewCell {
         
-        if let callback = self.cellCallback, object = self.frc?.objectAtIndexPath(indexPath) as? NSManagedObject {
-            return callback(tableView: tableView, object : object, indexPath : indexPath)
+		if let callback = self.cellCallback, let object = self.frc?.object(at: indexPath) as? NSManagedObject {
+            return callback(tableView, object, indexPath)
         }
         return UITableViewCell()
     }
@@ -102,54 +102,54 @@ extension StormcloudFetchedResultsController  {
 
 extension StormcloudFetchedResultsController : NSFetchedResultsControllerDelegate {
     
-    public func controllerWillChangeContent(controller: NSFetchedResultsController) {
+    public func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
         tableView.beginUpdates()
     }
     
-    public func controller(controller: NSFetchedResultsController, didChangeSection sectionInfo: NSFetchedResultsSectionInfo, atIndex sectionIndex: Int, forChangeType type: NSFetchedResultsChangeType) {
+    public func controller(controller: NSFetchedResultsController<NSFetchRequestResult>, didChangeSection sectionInfo: NSFetchedResultsSectionInfo, atIndex sectionIndex: Int, forChangeType type: NSFetchedResultsChangeType) {
         switch type {
             
-        case .Insert :
-            tableView.insertSections(NSIndexSet(index: sectionIndex), withRowAnimation: .Fade)
-        case .Delete :
-            tableView.deleteSections(NSIndexSet(index: sectionIndex), withRowAnimation: .Fade)
+        case .insert :
+            tableView.insertSections(NSIndexSet(index: sectionIndex) as IndexSet, with: .fade)
+        case .delete :
+            tableView.deleteSections(NSIndexSet(index: sectionIndex) as IndexSet, with: .fade)
         default :
             break
         }
     }
     
-    public func controller(controller: NSFetchedResultsController, didChangeObject anObject: AnyObject, atIndexPath indexPath: NSIndexPath?, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath?) {
+    public func controller(_: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
 
 
         
         switch type {
-        case .Insert :
+        case .insert :
             // get index path of didChangeObject
             //
             
             if let ip = newIndexPath {
-                tableView.insertRowsAtIndexPaths([ip], withRowAnimation: .Automatic)
+                tableView.insertRows(at: [ip as IndexPath], with: .automatic)
             }
             break
-        case .Delete :
+        case .delete :
             if let ip = indexPath {
-                tableView.deleteRowsAtIndexPaths([ip], withRowAnimation: .Fade)
+                tableView.deleteRows(at: [ip as IndexPath], with: .fade)
             }
-        case .Update :
+        case .update :
             if let ip = indexPath {
-                tableView.reloadRowsAtIndexPaths([ip], withRowAnimation: .Automatic)
+                tableView.reloadRows(at: [ip as IndexPath], with: .automatic)
             }
-        case .Move :
-            if let ip = indexPath, newIP = newIndexPath {
-                tableView.deleteRowsAtIndexPaths([newIP], withRowAnimation: .None)
-                tableView.insertRowsAtIndexPaths([ip], withRowAnimation: .None)
+        case .move :
+            if let ip = indexPath, let newIP = newIndexPath {
+                tableView.deleteRows(at: [newIP as IndexPath], with: .none)
+                tableView.insertRows(at: [ip as IndexPath], with: .none)
                 
             }
         }
         
     }
     
-    public func controllerDidChangeContent(controller: NSFetchedResultsController) {
+    public func controllerDidChangeContent(_: NSFetchedResultsController<NSFetchRequestResult>) {
         tableView.endUpdates()
     }
 }
@@ -157,15 +157,15 @@ extension StormcloudFetchedResultsController : NSFetchedResultsControllerDelegat
 // MARK: - Segue
 
 extension StormcloudFetchedResultsController {
-    public override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        var controller : UIViewController  = segue.destinationViewController
-        if let possibleNav = segue.destinationViewController as? UINavigationController {
+    public func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        var controller : UIViewController  = segue.destination
+        if let possibleNav = segue.destination as? UINavigationController {
             controller = possibleNav.viewControllers.first ?? possibleNav
         }
         if let dvc = controller as? StormcloudFetchedResultsControllerDetailVC,
-            ip = self.tableView.indexPathForSelectedRow,
-            object = self.frc?.objectAtIndexPath(ip) as? NSManagedObject {
-            dvc.setManagedObject(object)
+            let ip = self.tableView.indexPathForSelectedRow,
+            let object = self.frc?.object(at: ip) as? NSManagedObject {
+            dvc.setManagedObject(object: object)
         }
     }
     

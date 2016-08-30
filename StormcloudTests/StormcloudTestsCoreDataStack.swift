@@ -29,21 +29,21 @@ public protocol CoreDataStackDelegate {
     /**
      The location where you would like the SQLite database stored. Default is application document's directory, return nil to keep it there
      */
-    func storeDirectory() -> NSURL?
+    func storeDirectory() -> URL?
 }
 
-public class CoreDataStack {
+open class CoreDataStack {
     
-    public var delegate : CoreDataStackDelegate?
+    open var delegate : CoreDataStackDelegate?
     
     /// If you have a store you want to copy from elsewhere (e.g. a default store in your bundle), set this before running `setupStore`
-    public var copyDefaultStoreFromURL: NSURL?
+    open var copyDefaultStoreFromURL: URL?
     
     /// Whether to enable journalling on your SQLite database
-    public var journalling: Bool = true
+    open var journalling: Bool = true
     
     /// The managed object context for this stack
-    public var managedObjectContext : NSManagedObjectContext?
+    open var managedObjectContext : NSManagedObjectContext?
     
     internal var privateContext : NSManagedObjectContext?
     
@@ -66,11 +66,11 @@ public class CoreDataStack {
         initialiseCoreData()
     }
     
-    public func performRequestForTemplate( template : CoreDataStackFetchTemplate ) -> [NSManagedObject] {
+    open func performRequestForTemplate( _ template : CoreDataStackFetchTemplate ) -> [NSManagedObject] {
         let results : [NSManagedObject]
-        if let fetchRequest = self.persistentStoreCoordinator?.managedObjectModel.fetchRequestTemplateForName(template.fetchRequestName()), context = self.managedObjectContext {
+        if let fetchRequest = self.persistentStoreCoordinator?.managedObjectModel.fetchRequestTemplate(forName: template.fetchRequestName()), let context = self.managedObjectContext {
             do {
-                results = try context.executeFetchRequest(fetchRequest) as! [NSManagedObject]
+                results = try context.fetch(fetchRequest) as! [NSManagedObject]
             } catch {
                 results = []
                 print("Error fetching unit")
@@ -86,13 +86,14 @@ public class CoreDataStack {
      
      - parameter callback: The callback you want to run once the store is set up. Runs on the main thread.
      */
-    public func setupStore(callback : (() -> Void)?) {
+    open func setupStore(_ callback : (() -> Void)?) {
         
         self.callback = callback
-        
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0)) { () -> Void in
+		
+		
+        DispatchQueue.global(qos: .background).async {
             
-            let storeURL = self.applicationDocumentsDirectory().URLByAppendingPathComponent("\(self.modelName).sqlite")
+            let storeURL = self.applicationDocumentsDirectory().appendingPathComponent("\(self.modelName).sqlite")
             
             //            sleep(400)
             
@@ -101,7 +102,7 @@ public class CoreDataStack {
                 
                 print("Attempting to copy store from: \(defaultStoreURL)\nto:\(storeURL)")
                 do {
-                    try NSFileManager.defaultManager().copyItemAtURL(defaultStoreURL, toURL: storeURL)
+                    try FileManager.default.copyItem(at: defaultStoreURL, to: storeURL)
                 } catch let error as NSError {
                     print("Store already exists")
                     if error.code != 516 {
@@ -114,7 +115,7 @@ public class CoreDataStack {
             
             if CoreDataStackEnvironmentVariables.UseMemoryStore.isEnabled() {
                 do {
-                    try self.persistentStoreCoordinator!.addPersistentStoreWithType(NSInMemoryStoreType, configuration: nil, URL: storeURL, options:self.storeOptions())
+                    try self.persistentStoreCoordinator!.addPersistentStore(ofType: NSInMemoryStoreType, configurationName: nil, at: storeURL, options:self.storeOptions())
                     
                     print("Successfully attached in-memory store")
                     
@@ -124,7 +125,7 @@ public class CoreDataStack {
                 }
             } else {
                 do {
-                    try self.persistentStoreCoordinator!.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: storeURL, options:self.storeOptions())
+                    try self.persistentStoreCoordinator!.addPersistentStore(ofType: NSSQLiteStoreType, configurationName: nil, at: storeURL, options:self.storeOptions())
                     
                     print("Successfully attached SQL store")
                     
@@ -135,7 +136,7 @@ public class CoreDataStack {
             }
 
 			if let callback = self.callback {
-                dispatch_sync(dispatch_get_main_queue(), { () -> Void in
+                DispatchQueue.main.sync(execute: { () -> Void in
                     callback()
                 })
             }
@@ -145,11 +146,11 @@ public class CoreDataStack {
     /**
      Saves the managed object contexts
      */
-    public func save() {
+    open func save() {
         if self.managedObjectContext?.hasChanges == false && self.privateContext?.hasChanges == false {
             return
         }
-        self.managedObjectContext?.performBlockAndWait { () -> Void in
+        self.managedObjectContext?.performAndWait { () -> Void in
             do {
                 try self.managedObjectContext?.save()
             } catch let error as NSError {
@@ -160,7 +161,7 @@ public class CoreDataStack {
                 abort()
             }
             
-            self.privateContext?.performBlock({ () -> Void in
+            self.privateContext?.perform({ () -> Void in
                 do {
                     try self.privateContext?.save()
                 } catch let error as NSError {
@@ -177,12 +178,12 @@ public class CoreDataStack {
     
     
     @available(iOS 9.0, OSX 10.11, *)
-    public func replaceStore() {
+    open func replaceStore() {
         save()
-        let storeURL = self.applicationDocumentsDirectory().URLByAppendingPathComponent("\(self.modelName).sqlite")
+        let storeURL = self.applicationDocumentsDirectory().appendingPathComponent("\(self.modelName).sqlite")
         do {
-            if let sourceStore = NSBundle.mainBundle().URLForResource(self.modelName, withExtension: "sqlite") {
-                try persistentStoreCoordinator?.replacePersistentStoreAtURL(storeURL, destinationOptions: self.storeOptions(), withPersistentStoreFromURL: sourceStore, sourceOptions: self.storeOptions(), storeType: NSSQLiteStoreType)
+            if let sourceStore = Bundle.main.url(forResource: self.modelName, withExtension: "sqlite") {
+                try persistentStoreCoordinator?.replacePersistentStore(at: storeURL, destinationOptions: self.storeOptions(), withPersistentStoreFrom: sourceStore, sourceOptions: self.storeOptions(), ofType: NSSQLiteStoreType)
                 print("Store replaced")
             } else {
                 print("No replacement found")
@@ -195,7 +196,7 @@ public class CoreDataStack {
     /**
      Use this for versions of iOS < 9.0 and OS X < 10.11 to delete the store files.
      */
-    public func deleteStore() {
+    open func deleteStore() {
         save()
         
         print("Deleting store")
@@ -203,12 +204,12 @@ public class CoreDataStack {
         managedObjectContext = nil
         privateContext = nil
         
-        let storeURL = self.applicationDocumentsDirectory().URLByAppendingPathComponent("\(self.modelName).sqlite")
+        let storeURL = self.applicationDocumentsDirectory().appendingPathComponent("\(self.modelName).sqlite")
         
         if #available(OSX 10.9, *) {
             
             do {
-                try  self.persistentStoreCoordinator?.destroyPersistentStoreAtURL(storeURL, withType: NSSQLiteStoreType, options: self.storeOptions())
+                try  self.persistentStoreCoordinator?.destroyPersistentStore(at: storeURL, ofType: NSSQLiteStoreType, options: self.storeOptions())
             } catch {
                 print("Couldn't delete store")
             }
@@ -217,14 +218,14 @@ public class CoreDataStack {
             persistentStoreCoordinator = nil
         } else {
             
-            let walURL = self.applicationDocumentsDirectory().URLByAppendingPathComponent("\(self.modelName).sqlite-wal")
-            let shmURL = self.applicationDocumentsDirectory().URLByAppendingPathComponent("\(self.modelName).sqlite-shm")
+            let walURL = self.applicationDocumentsDirectory().appendingPathComponent("\(self.modelName).sqlite-wal")
+            let shmURL = self.applicationDocumentsDirectory().appendingPathComponent("\(self.modelName).sqlite-shm")
             
             
             do {
-                try NSFileManager.defaultManager().removeItemAtURL(storeURL)
-                try NSFileManager.defaultManager().removeItemAtURL(walURL)
-                try NSFileManager.defaultManager().removeItemAtURL(shmURL)
+                try FileManager.default.removeItem(at: storeURL)
+                try FileManager.default.removeItem(at: walURL)
+                try FileManager.default.removeItem(at: shmURL)
             } catch let error as NSError {
                 print("Error deleting store files: \(error.localizedDescription)")
             }
@@ -236,19 +237,19 @@ public class CoreDataStack {
     }
     
     
-    internal func storeOptions() -> [ NSObject : AnyObject ] {
-        var options = [ NSObject : AnyObject ]()
-        options = [NSMigratePersistentStoresAutomaticallyOption : true]
+    internal func storeOptions() -> [ NSObject : Any ] {
+        var options = [ NSObject : Any ]()
+        options = [NSMigratePersistentStoresAutomaticallyOption as NSObject : true as Any]
         if !self.journalling {
-            options[ NSSQLitePragmasOption ] = [ "journal_mode" : "DELETE" ]
+            options[ NSSQLitePragmasOption as NSObject ] = [ "journal_mode" : "DELETE" ]
         }
         return options
     }
     
-    internal func applicationDocumentsDirectory() -> NSURL {
-        guard let theDelegate = delegate, storeURL = theDelegate.storeDirectory() else {
-            let filemanager = NSFileManager.defaultManager()
-            let urls = filemanager.URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask) as [NSURL]
+    internal func applicationDocumentsDirectory() -> URL {
+        guard let theDelegate = delegate, let storeURL = theDelegate.storeDirectory() else {
+            let filemanager = FileManager.default
+            let urls = filemanager.urls(for: .documentDirectory, in: .userDomainMask) as [URL]
             return urls[0]
         }
         return storeURL
@@ -262,18 +263,18 @@ public class CoreDataStack {
         
         print("Setting up PSC")
         
-        let bundle = NSBundle(forClass: CoreDataStack.self)
+        let bundle = Bundle(for: CoreDataStack.self)
         
-        guard let model =             NSManagedObjectModel.mergedModelFromBundles([bundle]) else {
+        guard let model =             NSManagedObjectModel.mergedModel(from: [bundle]) else {
             abort()
         }
         self.persistentStoreCoordinator = NSPersistentStoreCoordinator(managedObjectModel: model)
         
-        self.managedObjectContext = NSManagedObjectContext(concurrencyType: .MainQueueConcurrencyType)
-        self.privateContext = NSManagedObjectContext(concurrencyType: .PrivateQueueConcurrencyType)
+        self.managedObjectContext = NSManagedObjectContext(concurrencyType: .mainQueueConcurrencyType)
+        self.privateContext = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
         self.privateContext!.persistentStoreCoordinator = self.persistentStoreCoordinator
         
-        self.managedObjectContext?.parentContext = privateContext
+        self.managedObjectContext?.parent = privateContext
     }
     
     

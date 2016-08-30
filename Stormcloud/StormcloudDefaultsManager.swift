@@ -8,69 +8,69 @@
 
 import UIKit
 
-public class StormcloudDefaultsManager: NSObject {
+open class StormcloudDefaultsManager: NSObject {
     
-    public var prefix : String = ""
+    open var prefix : String = ""
     var updatingiCloud = false
     
     override public init() {
         super.init()
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(StormcloudDefaultsManager.ubiquitousContentDidChange(_:)), name: NSUbiquitousKeyValueStoreDidChangeExternallyNotification, object: nil)
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(StormcloudDefaultsManager.enablediCloud(_:)), name: NSUbiquityIdentityDidChangeNotification, object: nil)
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(StormcloudDefaultsManager.userDefaultsDidChange(_:)), name: NSUserDefaultsDidChangeNotification, object: nil)
-        NSUbiquitousKeyValueStore.defaultStore().synchronize()
+        NotificationCenter.default.addObserver(self, selector: #selector(StormcloudDefaultsManager.ubiquitousContentDidChange(_:)), name: NSUbiquitousKeyValueStore.didChangeExternallyNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(StormcloudDefaultsManager.enablediCloud(_:)), name: NSNotification.Name.NSUbiquityIdentityDidChange, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(StormcloudDefaultsManager.userDefaultsDidChange(_:)), name: UserDefaults.didChangeNotification, object: nil)
+        NSUbiquitousKeyValueStore.default().synchronize()
     }
     
-    func ubiquitousContentDidChange( note : NSNotification ) {
+    func ubiquitousContentDidChange( _ note : Notification ) {
         
-        for ( key, value ) in NSUbiquitousKeyValueStore.defaultStore().dictionaryRepresentation {
+        for ( key, value ) in NSUbiquitousKeyValueStore.default().dictionaryRepresentation {
             if key.hasPrefix(self.prefix ) {
                 if let isBool = value as? Bool {
-                    NSUserDefaults.standardUserDefaults().setBool(isBool, forKey: key)
+                    UserDefaults.standard.set(isBool, forKey: key)
                 }
                 if let isInt = value as? Int {
-                    NSUserDefaults.standardUserDefaults().setInteger(isInt, forKey: key)
+                    UserDefaults.standard.set(isInt, forKey: key)
                 }
                 if let isString = value as? String {
-                    NSUserDefaults.standardUserDefaults().setObject(isString, forKey: key)
+                    UserDefaults.standard.set(isString, forKey: key)
                 }
             }
         }
     }
     
-    func userDefaultsDidChange( note : NSNotification ) {
+    func userDefaultsDidChange( _ note : Notification ) {
         if updatingiCloud {
             return
         }
         
         updatingiCloud = true
         
-        for ( key, value ) in NSUserDefaults.standardUserDefaults().dictionaryRepresentation() {
+        for ( key, value ) in UserDefaults.standard.dictionaryRepresentation() {
             if key.hasPrefix(self.prefix ) {
                 if let isBool = value as? Bool {
-                    NSUbiquitousKeyValueStore.defaultStore().setBool(isBool, forKey: key)
+                    NSUbiquitousKeyValueStore.default().set(isBool, forKey: key)
                 }
                 if let isInt = value as? Int {
-                    NSUbiquitousKeyValueStore.defaultStore().setLongLong(Int64(isInt), forKey: key)
+                    NSUbiquitousKeyValueStore.default().set(Int64(isInt), forKey: key)
                 }
                 if let isString = value as? String {
-                    NSUbiquitousKeyValueStore.defaultStore().setObject(isString, forKey: key)
+                    NSUbiquitousKeyValueStore.default().set(isString, forKey: key)
                 }
             }
         }
         
-        NSUbiquitousKeyValueStore.defaultStore().synchronize()
+        NSUbiquitousKeyValueStore.default().synchronize()
         
         updatingiCloud = false
     }
     
     
-    func enablediCloud( note : NSNotification? ) {
-        NSUbiquitousKeyValueStore.defaultStore().synchronize()
+    func enablediCloud( _ note : Notification? ) {
+        NSUbiquitousKeyValueStore.default().synchronize()
     }
     
     deinit {
-        NSNotificationCenter.defaultCenter().removeObserver(self)
+        NotificationCenter.default.removeObserver(self)
     }
     
 }

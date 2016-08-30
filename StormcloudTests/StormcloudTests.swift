@@ -10,7 +10,7 @@ import XCTest
 
 class StormcloudTests: StormcloudTestsBaseClass {
 	
-	let year = NSCalendar.currentCalendar().component(.Year, fromDate: NSDate())
+	let year = NSCalendar.current.component(.year, from: Date())
 	
     override func setUp() {
         super.setUp()
@@ -31,7 +31,7 @@ class StormcloudTests: StormcloudTestsBaseClass {
         let docs = self.listItemsAtURL()
         XCTAssertEqual(stormcloud.metadataList.count, docs.count)
         
-        let expectation = expectationWithDescription("Backup expectation")
+        let expectation = self.expectation(description: "Backup expectation")
         
         
         stormcloud.backupObjectsToJSON(["Test" : "Test"]) { (error, metadata) -> () in
@@ -42,7 +42,7 @@ class StormcloudTests: StormcloudTestsBaseClass {
             
         }
         
-        waitForExpectationsWithTimeout(3.0, handler: nil)
+        waitForExpectations(timeout: 3.0, handler: nil)
         
         let newDocs = self.listItemsAtURL()
         XCTAssertEqual(newDocs.count, 1)
@@ -54,7 +54,7 @@ class StormcloudTests: StormcloudTestsBaseClass {
     func testThatBackupManagerDeletesDocuments() {
         let stormcloud = Stormcloud()
         
-        let expectation = expectationWithDescription("Backup expectation")
+        let expectation = self.expectation(description: "Backup expectation")
         stormcloud.backupObjectsToJSON(["Test" : "Test"]) { (error, metadata) -> () in
             XCTAssertNil(error, "Backing up should always write successfully")
 
@@ -62,14 +62,14 @@ class StormcloudTests: StormcloudTestsBaseClass {
                 XCTAssertNotNil(metadata, "If successful, the metadata field should be populated")
             expectation.fulfill()
         }
-        waitForExpectationsWithTimeout(3.0, handler: nil)
+        waitForExpectations(timeout: 3.0, handler: nil)
         
         
         let newDocs = self.listItemsAtURL()
         XCTAssertEqual(stormcloud.metadataList.count, 1)
         XCTAssertEqual(stormcloud.metadataList.count, newDocs.count)
 
-        let deleteExpectation = expectationWithDescription("Delete expectation")
+        let deleteExpectation = self.expectation(description: "Delete expectation")
         
         if let firstItem = stormcloud.metadataList.first {
             stormcloud.deleteItem(firstItem) { (error, index) -> () in
@@ -79,7 +79,7 @@ class StormcloudTests: StormcloudTestsBaseClass {
         } else {
             XCTFail("Backup list should have at least 1 item in it")
         }
-        waitForExpectationsWithTimeout(3.0, handler: nil)
+        waitForExpectations(timeout: 3.0, handler: nil)
         
         let emptyDocs = self.listItemsAtURL()
         XCTAssertEqual(stormcloud.metadataList.count, 0)
@@ -96,7 +96,7 @@ class StormcloudTests: StormcloudTestsBaseClass {
 		
 		
 		
-        let expectation = expectationWithDescription("Adding new item")
+        let expectation = self.expectation(description: "Adding new item")
         stormcloud.backupObjectsToJSON(["Test" : "Test"]) { ( error,  metadata) -> () in
             
             XCTAssertNil(error)
@@ -104,16 +104,16 @@ class StormcloudTests: StormcloudTestsBaseClass {
             XCTAssertEqual(stormcloud.metadataList.count, 3)
 
             if stormcloud.metadataList.count == 3 {
-                XCTAssert(stormcloud.metadataList[0].filename.containsString("2020"))
-                XCTAssert(stormcloud.metadataList[1].filename.containsString("\(self.year)"))
-                XCTAssert(stormcloud.metadataList[2].filename.containsString("2014"))
+                XCTAssert(stormcloud.metadataList[0].filename.contains("2020"))
+                XCTAssert(stormcloud.metadataList[1].filename.contains("\(self.year)"))
+                XCTAssert(stormcloud.metadataList[2].filename.contains("2014"))
                 
             }
             
         
             expectation.fulfill()
         }
-        waitForExpectationsWithTimeout(3.0, handler: nil)
+        waitForExpectations(timeout: 3.0, handler: nil)
         
         let threeDocs = self.listItemsAtURL()
         XCTAssertEqual(stormcloud.metadataList.count, 3)
@@ -124,30 +124,30 @@ class StormcloudTests: StormcloudTestsBaseClass {
     func testThatFilenameDatesAreConvertedToLocalTime() {
         
         let stormcloud = Stormcloud()
-        let dateComponents = NSCalendar.currentCalendar().components([.Year, .Month, .Day, .Hour, .Minute], fromDate: NSDate())
-        dateComponents.timeZone = NSTimeZone(abbreviation: "UTC")
-        dateComponents.calendar = NSCalendar.currentCalendar()
+        var dateComponents = NSCalendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: Date())
+        dateComponents.timeZone = TimeZone(abbreviation: "UTC")
+        dateComponents.calendar = NSCalendar.current
         guard let date = dateComponents.date else {
-            XCTFail()
+            XCTFail("Failed to get date from dateComponents")
             return
         }
         
-        let expectation = expectationWithDescription("Adding new item")
+        let expectation = self.expectation(description: "Adding new item")
         stormcloud.backupObjectsToJSON(["Test" : "Test"]) { (error,  metadata) -> () in
             
             XCTAssertNil(error)
             
             if let hasMetadata = metadata {
-                let dateComponents = NSCalendar.currentCalendar().components([.Year, .Month, .Day, .Hour, .Minute], fromDate: hasMetadata.date)
-                dateComponents.calendar = NSCalendar.currentCalendar()
-                if let metaDatadate = dateComponents.date {
+                let dateComponents = NSCalendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: hasMetadata.date)
+                (dateComponents as NSDateComponents).calendar = NSCalendar.current
+                if let metaDatadate = (dateComponents as NSDateComponents).date {
                     XCTAssertEqual(date, metaDatadate)
                 }
             }
             
             expectation.fulfill()
         }
-        waitForExpectationsWithTimeout(3.0, handler: nil)
+        waitForExpectations(timeout: 3.0, handler: nil)
         
         
         
@@ -162,7 +162,7 @@ class StormcloudTests: StormcloudTestsBaseClass {
         XCTAssertEqual(stormcloud.metadataList.count, 2)
         XCTAssertEqual(stormcloud.metadataList.count, newDocs.count)
 
-        let expectation = expectationWithDescription("Adding new item")
+        let expectation = self.expectation(description: "Adding new item")
         stormcloud.backupObjectsToJSON(["Test" : "Test"]) { (error,  metadata) -> () in
             
             XCTAssertNil(error)
@@ -171,9 +171,9 @@ class StormcloudTests: StormcloudTestsBaseClass {
             
             expectation.fulfill()
         }
-        waitForExpectationsWithTimeout(3.0, handler: nil)
+        waitForExpectations(timeout: 3.0, handler: nil)
 		
-        let deleteExpectation = expectationWithDescription("Deleting new item")
+        let deleteExpectation = self.expectation(description: "Deleting new item")
 		stormcloud.deleteItemsOverLimit { (error) in
 			XCTAssertNil(error)
 			
@@ -181,15 +181,15 @@ class StormcloudTests: StormcloudTestsBaseClass {
 			
 			deleteExpectation.fulfill()
 		}
-		waitForExpectationsWithTimeout(3.0, handler: nil)
+		waitForExpectations(timeout: 3.0, handler: nil)
 		
         let stillTwoDocs = self.listItemsAtURL()
         XCTAssertEqual(stormcloud.metadataList.count, stillTwoDocs.count)
         
         if stormcloud.metadataList.count == 2 {
             // It should delete the oldest one
-            XCTAssert(stormcloud.metadataList[0].filename.containsString("2020"))
-            XCTAssert(stormcloud.metadataList[1].filename.containsString("\(year)"), "Deleted the wrong file!")
+            XCTAssert(stormcloud.metadataList[0].filename.contains("2020"))
+            XCTAssert(stormcloud.metadataList[1].filename.contains("\(year)"), "Deleted the wrong file!")
         } else {
             XCTFail("Document number incorrect")
         }
@@ -201,7 +201,7 @@ class StormcloudTests: StormcloudTestsBaseClass {
         let newDocs = self.listItemsAtURL()
         XCTAssertEqual(stormcloud.metadataList.count, 2)
         XCTAssertEqual(stormcloud.metadataList.count, newDocs.count)
-        let expectation = expectationWithDescription("Restoring item")        
+        let expectation = self.expectation(description: "Restoring item")        
         
         let metadata = stormcloud.metadataList[0]
         
@@ -210,7 +210,7 @@ class StormcloudTests: StormcloudTestsBaseClass {
             
             XCTAssertNotNil(restoredObjects)
             
-            if let dictionary = restoredObjects as? [String : AnyObject], model = dictionary["Model"] as? String {
+            if let dictionary = restoredObjects as? [String : AnyObject], let model = dictionary["Model"] as? String {
                 XCTAssertEqual(model, "iPhone")
                 
             } else {
@@ -221,7 +221,7 @@ class StormcloudTests: StormcloudTestsBaseClass {
             
         }
         
-        waitForExpectationsWithTimeout(4.0, handler: nil)
+        waitForExpectations(timeout: 4.0, handler: nil)
         
     }
     

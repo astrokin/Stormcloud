@@ -10,16 +10,16 @@ import Foundation
 import CoreData
 
 
-public class Tag: NSManagedObject {
+open class Tag: NSManagedObject {
 
 // Insert code here to add functionality to your managed object subclass
 
-    public class func insertTagWithName(name : String, inContext context : NSManagedObjectContext ) throws -> Tag {
-        if let tag = NSEntityDescription.insertNewObjectForEntityForName("Tag", inManagedObjectContext: context) as? Tag {
+    open class func insertTagWithName(_ name : String, inContext context : NSManagedObjectContext ) throws -> Tag {
+        if let tag = NSEntityDescription.insertNewObject(forEntityName: "Tag", into: context) as? Tag {
             tag.name = name
             return tag
         } else {
-            throw ICECoreDataError.InvalidType
+            throw ICECoreDataError.invalidType
         }
     }
     
