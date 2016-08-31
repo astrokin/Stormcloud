@@ -55,11 +55,11 @@ public class StormcloudFetchedResultsController: UITableViewController {
 
 extension StormcloudFetchedResultsController {
     
-    public  func tableView(_ tableView: UITableView, canEditRowAt indexPath: NSIndexPath) -> Bool {
+    public override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
         return self.enableDelete
     }
     
-    public  func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: IndexPath) {
+    public override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
         switch editingStyle {
         case .delete :
 			if let frc = self.frc, let object = frc.object(at: indexPath) as? NSManagedObject {

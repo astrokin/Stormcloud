@@ -17,9 +17,6 @@ class TagsTableViewController: StormcloudFetchedResultsController {
     
     override func viewDidLoad() {
 
-
-        
-        
         let request = NSFetchRequest<NSFetchRequestResult>(entityName: "Tag")
         request.sortDescriptors = [NSSortDescriptor(key: "name", ascending: true)]
         
@@ -90,11 +87,9 @@ extension TagsTableViewController {
         return false
     }
     
-	func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: IndexPath) {
+	override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
 		if let tag = self.frc?.object(at: indexPath) as? Tag {
-
-    
-            
+			
             if let tags = self.cloud.tags {
                 if tags.contains(tag) {
 					self.cloud.removeObject(value: tag, forKey: "tags")
@@ -111,16 +106,13 @@ extension TagsTableViewController {
 
 
 extension TagsTableViewController {
-    @IBAction func addTag(button : UIBarButtonItem ) {
+    @IBAction func addTag(_ button : UIBarButtonItem ) {
         if tagOptions.count > 0 {
             let option = tagOptions.removeFirst()
             do {
                 _ = try Tag.insertTagWithName(option, inContext: self.cloud.managedObjectContext!)
-
-                
-                
             } catch {
-                print("Error inserting tag")
+                fatalError("Error inserting tag")
             }
         }
     }

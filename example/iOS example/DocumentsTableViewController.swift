@@ -10,8 +10,7 @@ import UIKit
 import Stormcloud
 
 class DocumentsTableViewController: UITableViewController {
-
-    
+	
     let dateFormatter = DateFormatter()
     var documentsManager : Stormcloud!
     
@@ -23,8 +22,6 @@ class DocumentsTableViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
-
         // MARK: - To Copy
         self.documentsManager.fileLimit = 3
 
@@ -58,15 +55,15 @@ class DocumentsTableViewController: UITableViewController {
 
     // MARK: - Table view data source
 
-    func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+	override func numberOfSections(in tableView: UITableView) -> Int {
         return 1
     }
 
-    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return self.documentsManager.metadataList.count
     }
 
-    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "BackupTableViewCell", for: indexPath as IndexPath)
 
         // MARK: - To Copy
@@ -106,7 +103,7 @@ class DocumentsTableViewController: UITableViewController {
 
 
     // Override to support editing the table view.
-    func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
+    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
             
             // MARK: - To Copy
@@ -120,9 +117,7 @@ class DocumentsTableViewController: UITableViewController {
                     alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: { (action) -> Void in
                     }))
                     self.present(alert, animated: true, completion: nil)
-                    
                 }
-                
             })
 
             // End
@@ -201,7 +196,7 @@ extension DocumentsTableViewController : StormcloudMetadataDelegate {
 // MARK: - Segue
 
 extension DocumentsTableViewController {
-    func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if let dvc = segue.destination as? DetailViewController, let tvc = self.tableView.indexPathForSelectedRow {
             
             let metadata = self.documentsManager.metadataList[tvc.row]

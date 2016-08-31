@@ -40,14 +40,13 @@ class CloudDetailViewController: UIViewController {
         self.dynamicAnimator?.addBehavior(self.gravityBehaviour)
         
         self.addRaindropButton.isEnabled = false
-        
+
     }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-
 }
 
 // MARK: - Methods
@@ -292,7 +291,7 @@ extension CloudDetailViewController : StormcloudFetchedResultsControllerDetailVC
 
 extension CloudDetailViewController {
     
-    func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if let tagsVC = segue.destination as? TagsTableViewController {
             tagsVC.cloud = self.currentCloud
         }
