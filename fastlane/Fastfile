@@ -26,12 +26,15 @@ platform :ios do
 
 	spec = "Stormcloud.podspec"
 
-	before_all do
+	before_all do |lane, options|
 		ENV["SLACK_URL"] = "https://hooks.slack.com/services/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"
-		ensure_git_branch
-		ensure_git_status_clean
-		increment_build_number
-	end
+        if options[:skip_checks]
+            UI.message "Skipping checks"
+        else
+			ensure_git_branch
+			ensure_git_status_clean
+        end
+    end
 
 	desc "This does the following: "
 	desc ""
@@ -66,15 +69,19 @@ platform :ios do
 
 		type = options[:type]
 
-		version = version_bump_podspec(path: spec, bump_type: type)
-		increment_version_number( bump_type: type, version_number: version )
+    	if type == "none" 
+    		UI.message("No type found")
+    	else
+			version = version_bump_podspec(path: spec, bump_type: type)
+			increment_version_number( bump_type: type, version_number: version )
 
-		git_commit(path: spec, message: "Updating podspec")
-		commit_version_bump(xcodeproj: './Stormcloud.xcodeproj')
-		add_git_tag( tag: version)  
-		push_to_git_remote
-		pod_push(path: spec)
-		post_to_slack(scheme: scheme, version: version)
+			git_commit(path: spec, message: "Updating podspec")
+			commit_version_bump(xcodeproj: './Stormcloud.xcodeproj')
+			add_git_tag( tag: version)  
+			push_to_git_remote
+			pod_push(path: spec)
+			post_to_slack(scheme: scheme, version: version)
+		end
 	end
 
 	private_lane :post_to_slack do |options|
