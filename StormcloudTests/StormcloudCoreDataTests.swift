@@ -14,7 +14,7 @@ enum StormcloudTestError : Error {
     case couldntCreateManagedObject
 }
 
-class StormcloudCoreDataTests: StormcloudTestsBaseClass {
+class StormcloudCoreDataTests: StormcloudTestsBaseClass, StormcloudRestoreDelegate {
 
     let totalTags = 4
     let totalClouds = 2
@@ -140,9 +140,44 @@ class StormcloudCoreDataTests: StormcloudTestsBaseClass {
         }
         waitForExpectations(timeout: 3.0, handler: nil)
     }
-    
+	
+	func testThatBackingUpIndividualObjectsWorks() {
+		self.setupStack()
+		let tags = self.addTags()
+		self.addObjectsWithNumber(5, tags: tags)
+		
+		guard let context = self.stack.managedObjectContext else {
+			XCTFail("Context not available")
+			return
+		}
+
+		self.stack.save()
+		
+		if #available(iOS 10, *) {
+			let expectation = self.expectation(description: "Insert expectation")
+			let request = NSFetchRequest<Cloud>(entityName: "Cloud")
+			
+			let objects = try! context.fetch(request)
+			
+			manager.backupCoreDataObjects( objects: objects) { (error, metadata) -> () in
+				if let hasError = error {
+					XCTFail("Failed to back up Core Data entites: \(hasError)")
+					
+				}
+				expectation.fulfill()
+			}
+			waitForExpectations(timeout: 3.0, handler: nil)
+			let items = self.listItemsAtURL()
+			
+			XCTAssertEqual(items.count, 1)
+			XCTAssertEqual(self.manager.metadataList.count, 1)
+	
+		}
+	}
+	
+	
     func testThatBackingUpCoreDataCreatesFile() {
-        
+		
         self.setupStack()
         self.addObjectsWithNumber(1)
         self.backupCoreData()
@@ -363,12 +398,75 @@ class StormcloudCoreDataTests: StormcloudTestsBaseClass {
         
     }
     
-    
+
+	func testThatRestoringIndividualItemsWorks() {
+		// Keep a copy of all the data and make sure it's the same when it gets back in to the DB
+		self.copyItems(extra: true)
+		self.setupStack()
+		let items = self.listItemsAtURL()
+		
+		XCTAssertEqual(items.count, 3)
+		
+		manager.restoreDelegate = self
+		
+		guard let context = stack.managedObjectContext else {
+			XCTFail("Context not ready")
+			return
+		}
+
+		do {
+			let jsonData = try Data(contentsOf: items[2])
+			let json = try JSONSerialization.jsonObject(with: jsonData, options: .allowFragments)
+			
+			if let isJSON = json as? [String : AnyObject] {
+				let exp = expectation(description: "Individual Restore Expectation")
+				manager.insertIndividualObjectsWithContext(context, data: isJSON, completion: { (success) in
+					
+					guard success else {
+						XCTFail("Failed to restore objects")
+						return
+					}
+
+					let request = NSFetchRequest<Cloud>(entityName: "Cloud")
+					let objects = try! context.fetch(request)
+					
+					XCTAssertEqual(objects.count, 1)
+					
+					if let cloud = objects.first {
+						XCTAssertEqual(cloud.raindrops!.count, 2)
+						
+						if let raindrops = cloud.raindrops as? Set<Raindrop> {
+							let heavy = raindrops.filter() { $0.type == "Heavy" }
+							XCTAssertEqual(heavy.count, 1, "There should be one heavy raindrop")
+						}
+						
+					}
+					
+					
+					
+					exp.fulfill()
+					
+				})
+				waitForExpectations(timeout: 3, handler: nil)
+			} else {
+				XCTFail("Invalid Format")
+			}
+			
+		} catch {
+			XCTFail("Failed to read contents")
+		}
+		
+		
+		
+	}
+	
+
+	
     func testWeirdStrings() {
         // Keep a copy of all the data and make sure it's the same when it gets back in to the DB
-        
+		
         self.setupStack()
-        
+		
 
         if let context = self.stack.managedObjectContext {
             do {
@@ -376,15 +474,15 @@ class StormcloudCoreDataTests: StormcloudTestsBaseClass {
             } catch {
                 print("Error inserting cloud")
             }
-            
-            
+			
+			
         }
         self.backupCoreData()
-        
+		
         let items = self.listItemsAtURL()
         XCTAssertEqual(items.count, 1)
         XCTAssertEqual(self.manager.metadataList.count, 1)
-        
+		
         print(self.manager.urlForItem(self.manager.metadataList[0]))
         
         let expectation = self.expectation(description: "Restore expectation")
@@ -420,6 +518,9 @@ class StormcloudCoreDataTests: StormcloudTestsBaseClass {
         }
         
     }
-    
+
+	func stormcloud(stormcloud: Stormcloud, shouldRestore objects: [String : AnyObject], toEntityWithName name: String) -> Bool {
+		return true
+	}
     
 }

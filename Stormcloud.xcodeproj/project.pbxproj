@@ -11,6 +11,9 @@
 		F43811951BE77A1E0030D9FD /* Tag.swift in Sources */ = {isa = PBXBuildFile; fileRef = F43811931BE77A1E0030D9FD /* Tag.swift */; };
 		F48421211BDCBB8900C98567 /* Stormcloud.podspec in Resources */ = {isa = PBXBuildFile; fileRef = F48421201BDCBB8900C98567 /* Stormcloud.podspec */; };
 		F48421821BDCD62400C98567 /* StormcloudDefaultsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48421811BDCD62400C98567 /* StormcloudDefaultsManager.swift */; };
+		F4A617E91DB8F67000E484D0 /* Stormcloud+CoreData.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A617E81DB8F67000E484D0 /* Stormcloud+CoreData.swift */; };
+		F4A617EA1DB8F6AE00E484D0 /* Stormcloud+CoreData.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A617E81DB8F67000E484D0 /* Stormcloud+CoreData.swift */; };
+		F4A617EC1DB8F8DB00E484D0 /* fragment.vtabackup in Resources */ = {isa = PBXBuildFile; fileRef = F4A617EB1DB8F8DB00E484D0 /* fragment.vtabackup */; };
 		F4E2E9531BDCC8AF00A63FAF /* Stormcloud.h in Headers */ = {isa = PBXBuildFile; fileRef = F4E2E9521BDCC8AF00A63FAF /* Stormcloud.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F4E2E95A1BDCC8AF00A63FAF /* Stormcloud.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4E2E94F1BDCC8AF00A63FAF /* Stormcloud.framework */; };
 		F4E2E96B1BDCC8AF00A63FAF /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = F4E2E9691BDCC8AF00A63FAF /* LICENSE */; };
@@ -18,8 +21,8 @@
 		F4E2E9711BDCC8AF00A63FAF /* Stormcloud.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E2E96E1BDCC8AF00A63FAF /* Stormcloud.swift */; };
 		F4E2E9721BDCC8AF00A63FAF /* StormcloudMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E2E96F1BDCC8AF00A63FAF /* StormcloudMetadata.swift */; };
 		F4E2E9741BDCC8AF00A63FAF /* Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E2E9731BDCC8AF00A63FAF /* Error.swift */; };
-		F4E2E9811BDCC8AF00A63FAF /* 2014-10-18 16-47-44--iPhone--1E7C8A50-FDDC-4904-AD64-B192CF3DD157.json in Resources */ = {isa = PBXBuildFile; fileRef = F4E2E9751BDCC8AF00A63FAF /* 2014-10-18 16-47-44--iPhone--1E7C8A50-FDDC-4904-AD64-B192CF3DD157.json */; };
-		F4E2E9821BDCC8AF00A63FAF /* 2020-10-19 16-47-44--iPhone--1E7C8A50-FDDC-4904-AD64-B192CF3DD157.json in Resources */ = {isa = PBXBuildFile; fileRef = F4E2E9761BDCC8AF00A63FAF /* 2020-10-19 16-47-44--iPhone--1E7C8A50-FDDC-4904-AD64-B192CF3DD157.json */; };
+		F4E2E9811BDCC8AF00A63FAF /* 2014-10-18 16-47-44--iPhone--1E7C8A50-FDDC-4904-AD64-B192CF3DD157.vtabackup in Resources */ = {isa = PBXBuildFile; fileRef = F4E2E9751BDCC8AF00A63FAF /* 2014-10-18 16-47-44--iPhone--1E7C8A50-FDDC-4904-AD64-B192CF3DD157.vtabackup */; };
+		F4E2E9821BDCC8AF00A63FAF /* 2020-10-19 16-47-44--iPhone--1E7C8A50-FDDC-4904-AD64-B192CF3DD157.vtabackup in Resources */ = {isa = PBXBuildFile; fileRef = F4E2E9761BDCC8AF00A63FAF /* 2020-10-19 16-47-44--iPhone--1E7C8A50-FDDC-4904-AD64-B192CF3DD157.vtabackup */; };
 		F4E2E9831BDCC8AF00A63FAF /* StormcloudCoreDataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E2E9771BDCC8AF00A63FAF /* StormcloudCoreDataTests.swift */; };
 		F4E2E9841BDCC8AF00A63FAF /* StormcloudTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E2E9781BDCC8AF00A63FAF /* StormcloudTests.swift */; };
 		F4E2E9851BDCC8AF00A63FAF /* StormcloudTestsBaseClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E2E9791BDCC8AF00A63FAF /* StormcloudTestsBaseClass.swift */; };
@@ -50,6 +53,8 @@
 		F43811931BE77A1E0030D9FD /* Tag.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Tag.swift; sourceTree = "<group>"; };
 		F48421201BDCBB8900C98567 /* Stormcloud.podspec */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Stormcloud.podspec; sourceTree = "<group>"; };
 		F48421811BDCD62400C98567 /* StormcloudDefaultsManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StormcloudDefaultsManager.swift; sourceTree = "<group>"; };
+		F4A617E81DB8F67000E484D0 /* Stormcloud+CoreData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Stormcloud+CoreData.swift"; sourceTree = "<group>"; };
+		F4A617EB1DB8F8DB00E484D0 /* fragment.vtabackup */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = fragment.vtabackup; sourceTree = "<group>"; };
 		F4E2E94F1BDCC8AF00A63FAF /* Stormcloud.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Stormcloud.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F4E2E9521BDCC8AF00A63FAF /* Stormcloud.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Stormcloud.h; sourceTree = "<group>"; };
 		F4E2E9541BDCC8AF00A63FAF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -61,8 +66,8 @@
 		F4E2E96E1BDCC8AF00A63FAF /* Stormcloud.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Stormcloud.swift; sourceTree = "<group>"; };
 		F4E2E96F1BDCC8AF00A63FAF /* StormcloudMetadata.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StormcloudMetadata.swift; sourceTree = "<group>"; };
 		F4E2E9731BDCC8AF00A63FAF /* Error.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Error.swift; sourceTree = "<group>"; };
-		F4E2E9751BDCC8AF00A63FAF /* 2014-10-18 16-47-44--iPhone--1E7C8A50-FDDC-4904-AD64-B192CF3DD157.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "2014-10-18 16-47-44--iPhone--1E7C8A50-FDDC-4904-AD64-B192CF3DD157.json"; sourceTree = "<group>"; };
-		F4E2E9761BDCC8AF00A63FAF /* 2020-10-19 16-47-44--iPhone--1E7C8A50-FDDC-4904-AD64-B192CF3DD157.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "2020-10-19 16-47-44--iPhone--1E7C8A50-FDDC-4904-AD64-B192CF3DD157.json"; sourceTree = "<group>"; };
+		F4E2E9751BDCC8AF00A63FAF /* 2014-10-18 16-47-44--iPhone--1E7C8A50-FDDC-4904-AD64-B192CF3DD157.vtabackup */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "2014-10-18 16-47-44--iPhone--1E7C8A50-FDDC-4904-AD64-B192CF3DD157.vtabackup"; sourceTree = "<group>"; };
+		F4E2E9761BDCC8AF00A63FAF /* 2020-10-19 16-47-44--iPhone--1E7C8A50-FDDC-4904-AD64-B192CF3DD157.vtabackup */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "2020-10-19 16-47-44--iPhone--1E7C8A50-FDDC-4904-AD64-B192CF3DD157.vtabackup"; sourceTree = "<group>"; };
 		F4E2E9771BDCC8AF00A63FAF /* StormcloudCoreDataTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StormcloudCoreDataTests.swift; sourceTree = "<group>"; };
 		F4E2E9781BDCC8AF00A63FAF /* StormcloudTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StormcloudTests.swift; sourceTree = "<group>"; };
 		F4E2E9791BDCC8AF00A63FAF /* StormcloudTestsBaseClass.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StormcloudTestsBaseClass.swift; sourceTree = "<group>"; };
@@ -96,8 +101,9 @@
 		F48421291BDCD33200C98567 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				F4E2E9751BDCC8AF00A63FAF /* 2014-10-18 16-47-44--iPhone--1E7C8A50-FDDC-4904-AD64-B192CF3DD157.json */,
-				F4E2E9761BDCC8AF00A63FAF /* 2020-10-19 16-47-44--iPhone--1E7C8A50-FDDC-4904-AD64-B192CF3DD157.json */,
+				F4E2E9751BDCC8AF00A63FAF /* 2014-10-18 16-47-44--iPhone--1E7C8A50-FDDC-4904-AD64-B192CF3DD157.vtabackup */,
+				F4E2E9761BDCC8AF00A63FAF /* 2020-10-19 16-47-44--iPhone--1E7C8A50-FDDC-4904-AD64-B192CF3DD157.vtabackup */,
+				F4A617EB1DB8F8DB00E484D0 /* fragment.vtabackup */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -148,6 +154,7 @@
 				F4E2E9541BDCC8AF00A63FAF /* Info.plist */,
 				F4E2E9731BDCC8AF00A63FAF /* Error.swift */,
 				F48421811BDCD62400C98567 /* StormcloudDefaultsManager.swift */,
+				F4A617E81DB8F67000E484D0 /* Stormcloud+CoreData.swift */,
 			);
 			path = Stormcloud;
 			sourceTree = "<group>";
@@ -267,8 +274,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F4E2E9821BDCC8AF00A63FAF /* 2020-10-19 16-47-44--iPhone--1E7C8A50-FDDC-4904-AD64-B192CF3DD157.json in Resources */,
-				F4E2E9811BDCC8AF00A63FAF /* 2014-10-18 16-47-44--iPhone--1E7C8A50-FDDC-4904-AD64-B192CF3DD157.json in Resources */,
+				F4A617EC1DB8F8DB00E484D0 /* fragment.vtabackup in Resources */,
+				F4E2E9821BDCC8AF00A63FAF /* 2020-10-19 16-47-44--iPhone--1E7C8A50-FDDC-4904-AD64-B192CF3DD157.vtabackup in Resources */,
+				F4E2E9811BDCC8AF00A63FAF /* 2014-10-18 16-47-44--iPhone--1E7C8A50-FDDC-4904-AD64-B192CF3DD157.vtabackup in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -281,6 +289,7 @@
 			files = (
 				F4E2E9741BDCC8AF00A63FAF /* Error.swift in Sources */,
 				F4E2E9701BDCC8AF00A63FAF /* StormcloudDocument.swift in Sources */,
+				F4A617E91DB8F67000E484D0 /* Stormcloud+CoreData.swift in Sources */,
 				F4E2E9711BDCC8AF00A63FAF /* Stormcloud.swift in Sources */,
 				F48421821BDCD62400C98567 /* StormcloudDefaultsManager.swift in Sources */,
 				F4E2E9721BDCC8AF00A63FAF /* StormcloudMetadata.swift in Sources */,
@@ -305,6 +314,7 @@
 				F4E2E9851BDCC8AF00A63FAF /* StormcloudTestsBaseClass.swift in Sources */,
 				F43811951BE77A1E0030D9FD /* Tag.swift in Sources */,
 				F4E2E9901BDCC8AF00A63FAF /* Error.swift in Sources */,
+				F4A617EA1DB8F6AE00E484D0 /* Stormcloud+CoreData.swift in Sources */,
 				F4E2E98A1BDCC8AF00A63FAF /* Raindrop.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

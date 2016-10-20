@@ -125,7 +125,7 @@ open class StormcloudMetadata: NSObject {
         
         self.deviceUUID = StormcloudMetadata.getDeviceUUID()
         let stringDate = StormcloudMetadata.dateFormatter.string(from: self.date)
-        self.filename = "\(stringDate)--\(self.device)--\(self.deviceUUID).json"
+        self.filename = "\(stringDate)--\(self.device)--\(self.deviceUUID).vtabackup"
     }
     
     
@@ -153,7 +153,7 @@ open class StormcloudMetadata: NSObject {
             }
             
             device = components[1]
-            deviceUUID = components[2].replacingOccurrences(of: ".json", with: "")
+            deviceUUID = components[2].replacingOccurrences(of: ".vtabackup", with: "")
         }
         self.filename = filename
         self.device = device

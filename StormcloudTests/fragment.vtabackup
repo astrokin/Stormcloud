@@ -1,0 +1,43 @@
+{
+	"x-coredata:\/\/648C8A11-FC97-400F-A1F1-4D8F47F9275A\/Cloud\/p7" : {
+		"added" : "2016-10-20T15:04:53.788+0200",
+		"name" : "Cloud 5",
+		"com.voyagetravelapps.Stormcloud.entityType" : "Cloud",
+		"chanceOfRain" : 0.45,
+		"raindrops" : [
+					   {
+					   
+					   },
+					   {
+        "timesFallen" : 10,
+        "type" : "Heavy",
+        "raindropValue" : "10.54",
+        "colour" : "YnBsaXN0MDDUAQIDBAUGIyRYJHZlcnNpb25YJG9iamVjdHNZJGFyY2hpdmVyVCR0b3ASAAGGoKQHCBkaVSRudWxs2QkKCwwNDg8QERITExQVFhcUGF8QFVVJQ29sb3JDb21wb25lbnRDb3VudFdVSUdyZWVuVlVJQmx1ZVdVSUFscGhhVU5TUkdCXxARVUlTeXN0ZW1Db2xvck5hbWVWJGNsYXNzVVVJUmVkXE5TQ29sb3JTcGFjZRAEIgAAAAAiP4AAAEUxIDAgMIACgAMQAlhyZWRDb2xvctMbHB0eHyFaJGNsYXNzbmFtZVgkY2xhc3Nlc1skY2xhc3NoaW50c1dVSUNvbG9yoh4gWE5TT2JqZWN0oSJXTlNDb2xvcl8QD05TS2V5ZWRBcmNoaXZlctElJlZjb2xvdXKAAQAIABEAGgAjAC0AMgA3ADwAQgBVAG0AdQB8AIQAigCeAKUAqwC4ALoAvwDEAMoAzADOANAA2QDgAOsA9AEAAQgBCwEUARYBHgEwATMBOgAAAAAAAAIBAAAAAAAAACcAAAAAAAAAAAAAAAAAAAE8"
+					   },
+					   {
+        "timesFallen" : 10,
+        "type" : "Light",
+        "raindropValue" : "10.54",
+        "colour" : "YnBsaXN0MDDUAQIDBAUGIyRYJHZlcnNpb25YJG9iamVjdHNZJGFyY2hpdmVyVCR0b3ASAAGGoKQHCBkaVSRudWxs2QkKCwwNDg8QERITExQVFhcUGF8QFVVJQ29sb3JDb21wb25lbnRDb3VudFdVSUdyZWVuVlVJQmx1ZVdVSUFscGhhVU5TUkdCXxARVUlTeXN0ZW1Db2xvck5hbWVWJGNsYXNzVVVJUmVkXE5TQ29sb3JTcGFjZRAEIgAAAAAiP4AAAEUxIDAgMIACgAMQAlhyZWRDb2xvctMbHB0eHyFaJGNsYXNzbmFtZVgkY2xhc3Nlc1skY2xhc3NoaW50c1dVSUNvbG9yoh4gWE5TT2JqZWN0oSJXTlNDb2xvcl8QD05TS2V5ZWRBcmNoaXZlctElJlZjb2xvdXKAAQAIABEAGgAjAC0AMgA3ADwAQgBVAG0AdQB8AIQAigCeAKUAqwC4ALoAvwDEAMoAzADOANAA2QDgAOsA9AEAAQgBCwEUARYBHgEwATMBOgAAAAAAAAIBAAAAAAAAACcAAAAAAAAAAAAAAAAAAAE8"
+					   }
+					   ],
+		"tags" : [
+      {
+				  
+      },
+      {
+				  "name" : "Thundery"
+      },
+      {
+				  "name" : "Windy"
+      },
+      {
+				  "name" : "Dark"
+      },
+      {
+				  "name" : "Wet"
+      }
+				  ],
+		"order" : 5
+	}
+}

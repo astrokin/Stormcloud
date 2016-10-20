@@ -23,7 +23,7 @@ class StormcloudTestsBaseClass: XCTestCase {
         let docs = self.listItemsAtURL()
         
         for url in docs {
-            if url.pathExtension == "json" {
+            if url.pathExtension == "vtabackup" {
                 do {
                     print("Deleting \(url)")
                     try FileManager.default.removeItem(at: url)
@@ -42,7 +42,7 @@ class StormcloudTestsBaseClass: XCTestCase {
         let docs = self.listItemsAtURL()
         
         for url in docs {
-            if url.pathExtension == "json" {
+            if url.pathExtension == "vtabackup" {
                 do {
                     print("Deleting \(url)")
                     try FileManager.default.removeItem(at: url)
@@ -52,30 +52,33 @@ class StormcloudTestsBaseClass: XCTestCase {
             }
         }
     }
-    
-    func copyItems() {
-        
-        let fullPastFilename = self.pastFilename + ".json"
-        let fullFutureFilename = self.futureFilename + ".json"
-        
-        if let pastURL = Bundle(for: StormcloudTests.self).url(forResource: self.pastFilename, withExtension: "json"),
-            let docsURL = self.docsURL?.appendingPathComponent(fullPastFilename) {
-                
-                
-                do {
-                    try             FileManager.default.copyItem(at: pastURL, to: docsURL)
-                } catch let error as NSError {
-                    XCTFail("Failed to copy past item \(error.localizedDescription)")
-                }
-        }
-        if let futureURL = Bundle(for: StormcloudTests.self).url(forResource: self.futureFilename, withExtension: "json"),
-            let docsURL = self.docsURL?.appendingPathComponent(fullFutureFilename) {
-                do {
-                    try             FileManager.default.copyItem(at: futureURL, to: docsURL)
-                } catch {
-                    XCTFail("Failed to copy future item")
-                }
-        }
+	
+	
+	func copyItemWith( filename filename: String, fileExtension : String ) {
+		let fullName = filename + "." + fileExtension
+		
+		if let theURL = Bundle(for: StormcloudTests.self).url(forResource: filename, withExtension: fileExtension),
+			let docsURL = self.docsURL?.appendingPathComponent(fullName) {
+		
+			do {
+				try             FileManager.default.copyItem(at: theURL, to: docsURL)
+			} catch let error as NSError {
+				XCTFail("Failed to copy past item \(error.localizedDescription)")
+			}
+		}
+	}
+	
+	
+	
+	func copyItems(extra : Bool = false) {
+		
+		self.copyItemWith(filename: self.pastFilename, fileExtension: "vtabackup")
+		self.copyItemWith(filename: self.futureFilename, fileExtension: "vtabackup")
+		if extra {
+			self.copyItemWith(filename: "fragment", fileExtension: "vtabackup")
+			
+		}
+
         
     }
     
@@ -91,7 +94,7 @@ class StormcloudTestsBaseClass: XCTestCase {
             }
             
             for url in docs {
-                if url.pathExtension == "json" {
+                if url.pathExtension == "vtabackup" {
                     jsonDocs.append(url)
                 }
             }

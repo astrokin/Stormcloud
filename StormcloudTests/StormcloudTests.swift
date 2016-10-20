@@ -120,6 +120,8 @@ class StormcloudTests: StormcloudTestsBaseClass {
         XCTAssertEqual(stormcloud.metadataList.count, threeDocs.count)
         
     }
+	
+
     
     func testThatFilenameDatesAreConvertedToLocalTime() {
         
