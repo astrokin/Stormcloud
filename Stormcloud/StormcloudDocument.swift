@@ -14,6 +14,8 @@ open class BackupDocument: UIDocument {
     open var objectsToBackup : Any?
     
     open override func load(fromContents contents: Any, ofType typeName: String?) throws {
+
+		
         if let data = contents as? Data {
             do {
                 let json = try JSONSerialization.jsonObject(with: data, options: JSONSerialization.ReadingOptions.allowFragments) as? [String : AnyObject]
@@ -26,28 +28,25 @@ open class BackupDocument: UIDocument {
                 print("Error reading JSON, or not correct format")
             }
         }
+		
+		updateChangeCount(.done)
     }
     
     open override func contents(forType typeName: String) throws -> Any {
         var data = Data()
         
-        if let hasData = self.objectsToBackup {
-            do {
-                let jsonOptions : JSONSerialization.WritingOptions
-                if StormcloudEnvironment.VerboseLogging.isEnabled() {
-                    jsonOptions = .prettyPrinted
-                } else {
-                    jsonOptions = JSONSerialization.WritingOptions()
-                }
-                
-                data = try JSONSerialization.data(withJSONObject: hasData, options: jsonOptions)
-            } catch {
-                print("Error writing JSON")
-            }
-            
+        guard let hasData = self.objectsToBackup  else {
+			throw StormcloudError.invalidJSON
         }
-        
-        return data
+		do {
+			data = try JSONSerialization.data(withJSONObject: hasData, options: .prettyPrinted)
+			
+		} catch {
+			print("Error saving")
+		}
+		
+		return NSData(data: data)
     }
-    
+	
+	
 }
