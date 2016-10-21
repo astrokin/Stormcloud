@@ -23,7 +23,7 @@ class StormcloudTestsBaseClass: XCTestCase {
         let docs = self.listItemsAtURL()
         
         for url in docs {
-            if url.pathExtension == "vtabackup" {
+            if url.pathExtension == "json" {
                 do {
                     print("Deleting \(url)")
                     try FileManager.default.removeItem(at: url)
@@ -42,7 +42,7 @@ class StormcloudTestsBaseClass: XCTestCase {
         let docs = self.listItemsAtURL()
         
         for url in docs {
-            if url.pathExtension == "vtabackup" {
+            if url.pathExtension == "json" {
                 do {
                     print("Deleting \(url)")
                     try FileManager.default.removeItem(at: url)
@@ -72,10 +72,10 @@ class StormcloudTestsBaseClass: XCTestCase {
 	
 	func copyItems(extra : Bool = false) {
 		
-		self.copyItemWith(filename: self.pastFilename, fileExtension: "vtabackup")
-		self.copyItemWith(filename: self.futureFilename, fileExtension: "vtabackup")
+		self.copyItemWith(filename: self.pastFilename, fileExtension: "json")
+		self.copyItemWith(filename: self.futureFilename, fileExtension: "json")
 		if extra {
-			self.copyItemWith(filename: "fragment", fileExtension: "vtabackup")
+			self.copyItemWith(filename: "fragment", fileExtension: "json")
 			
 		}
 
@@ -94,7 +94,7 @@ class StormcloudTestsBaseClass: XCTestCase {
             }
             
             for url in docs {
-                if url.pathExtension == "vtabackup" {
+                if url.pathExtension == "json" {
                     jsonDocs.append(url)
                 }
             }
