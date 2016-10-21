@@ -54,7 +54,7 @@ class StormcloudTestsBaseClass: XCTestCase {
     }
 	
 	
-	func copyItemWith( filename filename: String, fileExtension : String ) {
+	func copyItemWith( filename: String, fileExtension : String ) {
 		let fullName = filename + "." + fileExtension
 		
 		if let theURL = Bundle(for: StormcloudTests.self).url(forResource: filename, withExtension: fileExtension),

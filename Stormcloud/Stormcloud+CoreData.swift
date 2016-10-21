@@ -107,6 +107,7 @@ extension Stormcloud {
 				try privateContext.obtainPermanentIDs(for: allObjects)
 				self.stormcloudLog("\t\tSuccess")
 			} catch {
+				success = false
 				self.stormcloudLog("\t\tCouldn't obtain permanent IDs")
 			}
 			
@@ -123,6 +124,7 @@ extension Stormcloud {
 				try privateContext.save()
 			} catch {
 				// TODO : Better error handling
+				success = false
 				self.stormcloudLog("Error saving during restore")
 			}
 			
@@ -131,6 +133,7 @@ extension Stormcloud {
 					try context.save()
 				} catch {
 					// TODO : Better error handling
+					success = false
 					self.stormcloudLog("Error saving parent context")
 				}
 				if let parentContext = context.parent {
@@ -138,18 +141,13 @@ extension Stormcloud {
 						try parentContext.save()
 					} catch {
 						// TODO : Better error handling
+						success = false
 						self.stormcloudLog("Error saving top level")
 					}
 				}
 				
 			})
-			
-			do {
-				try privateContext.save()
-			} catch {
-				abort()
-			}
-			
+						
 			DispatchQueue.main.async { () -> Void in
 				completion(success)
 			}
