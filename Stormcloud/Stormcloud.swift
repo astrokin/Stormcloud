@@ -75,7 +75,7 @@ public protocol StormcloudDelegate {
 open class Stormcloud: NSObject {
 	
 	/// The file extension to use for the backup files
-	open var fileExtension = "vtabackup"
+	open var fileExtension = "json"
 	
 	/// Whether or not the backup manager is currently using iCloud (read only)
 	open var isUsingiCloud : Bool {
