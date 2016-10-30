@@ -489,6 +489,7 @@ extension Stormcloud {
 							if fileURL.pathExtension == self.fileExtension {
 								
 								let finaliCloudURL = iCloudDir.appendingPathComponent(fileURL.lastPathComponent)
+								print( finaliCloudURL)
 								do {
 									try FileManager.default.setUbiquitous(true, itemAt: fileURL, destinationURL: finaliCloudURL)
 								} catch {
@@ -636,10 +637,10 @@ extension Stormcloud {
 			return
 		}
 		
-		stormcloudLog("Beginning metadata query")
+		stormcloudLog("Beginning metadata query with file extension \(self.fileExtension)")
 		
 		self.metadataQuery.searchScopes = [NSMetadataQueryUbiquitousDocumentsScope]
-		self.metadataQuery.predicate = NSPredicate(format: "%K CONTAINS '.%@'", NSMetadataItemFSNameKey, self.fileExtension)
+		self.metadataQuery.predicate = NSPredicate(format: "%K CONTAINS '\(self.fileExtension)'", NSMetadataItemPathKey)
 		
 		NotificationCenter.default.addObserver(self, selector: #selector(Stormcloud.metadataFinishedGathering), name:NSNotification.Name.NSMetadataQueryDidFinishGathering , object: nil)
 		NotificationCenter.default.addObserver(self, selector: #selector(Stormcloud.metadataUpdated), name:NSNotification.Name.NSMetadataQueryDidUpdate, object: nil)
