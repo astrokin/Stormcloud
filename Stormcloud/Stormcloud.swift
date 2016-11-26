@@ -195,7 +195,7 @@ public class Stormcloud: NSObject {
                     let finalURL = docsDir.URLByAppendingPathComponent(filename)
                     let finaliCloudURL = iCloudDir.URLByAppendingPathComponent(filename)
                     do {
-                        try NSFileManager.defaultManager().setUbiquitous(true, itemAtURL: finalURL, destinationURL: finaliCloudURL)
+                        try NSFileManager.defaultManager().setUbiquitous(true, itemAtURL: finalURL!, destinationURL: finaliCloudURL!)
                     } catch let error as NSError {
                         success = false
                         hasError = error
@@ -226,7 +226,7 @@ public class Stormcloud: NSObject {
                     let finaliCloudURL = iCloudDir.URLByAppendingPathComponent(element)
                     do {
                         self.stormcloudLog("Moving files from iCloud: \(finaliCloudURL) to local URL: \(finalURL)")
-                        try NSFileManager.defaultManager().setUbiquitous(false, itemAtURL: finaliCloudURL, destinationURL: finalURL)
+                        try NSFileManager.defaultManager().setUbiquitous(false, itemAtURL: finaliCloudURL!, destinationURL: finalURL!)
                     } catch {
                         success = false
                     }
@@ -282,7 +282,7 @@ extension Stormcloud {
             let metadata = StormcloudMetadata()
             let finalURL = baseURL.URLByAppendingPathComponent(metadata.filename)
             
-            let document = BackupDocument(fileURL: finalURL)
+            let document = BackupDocument(fileURL: finalURL!)
             
             self.stormcloudLog("Backing up to: \(finalURL)")
             
@@ -300,7 +300,7 @@ extension Stormcloud {
                 completion(error: .BackupFileExists, metadata: nil)
                 return
             }
-            document.saveToURL(finalURL, forSaveOperation: .ForCreating, completionHandler: { (success) -> Void in
+            document.saveToURL(finalURL!, forSaveOperation: .ForCreating, completionHandler: { (success) -> Void in
                 let totalSuccess = success
                 
                 if ( !totalSuccess ) {
@@ -391,19 +391,19 @@ extension Stormcloud {
                                     if let objectSet =  object.valueForKey(relationship.name) as? NSSet, objectArray = objectSet.allObjects as? [NSManagedObject] {
                                         for object in objectArray {
 
-                                            objectIDs.append(object.objectID.URIRepresentation().absoluteString)
+                                            objectIDs.append(object.objectID.URIRepresentation().absoluteString!)
                                         }
                                     }
                                     
                                     if let relationshipObject = object.valueForKey(relationship.name) as? NSManagedObject {
                                         let objectID = relationshipObject.objectID.URIRepresentation().absoluteString
-                                        objectIDs.append(objectID)
+                                        objectIDs.append(objectID!)
                                         
                                     }
                                     internalDictionary[relationship.name] = objectIDs
                                 }
                             }
-                            dictionary[uriRepresentation] = internalDictionary
+                            dictionary[uriRepresentation!] = internalDictionary
                             
                         }
                     }
@@ -1022,7 +1022,7 @@ extension Stormcloud {
                                 if let finalPath = fileURL.lastPathComponent {
                                     let finaliCloudURL = iCloudDir.URLByAppendingPathComponent(finalPath)
                                     do {
-                                        try NSFileManager.defaultManager().setUbiquitous(true, itemAtURL: fileURL, destinationURL: finaliCloudURL)
+                                        try NSFileManager.defaultManager().setUbiquitous(true, itemAtURL: fileURL, destinationURL: finaliCloudURL!)
                                     } catch {
                                         stormcloudError = StormcloudError.CouldntMoveDocumentToiCloud
                                     }
